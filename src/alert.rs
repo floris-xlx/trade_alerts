@@ -1,5 +1,5 @@
 //! ## Alerts scheduler and manager for trading and price alerts
-
+/*
 use crate::db::Supabase;
 use crate::Alert;
 use crate::Hash;
@@ -9,12 +9,12 @@ impl Alert {
     ///
     /// This function creates a new Alert instance and upserts it into the database
     ///
-    pub fn new(hash: Hash, price_level: f64, symbol: String, time: i64) -> Self {
+    pub fn new(hash: Hash, price_level: f64, symbol: String, unixtime: i64) -> Self {
         Self {
             hash,
             price_level,
             symbol,
-            time,
+            unixtime,
         }
     }
 
@@ -26,9 +26,9 @@ impl Alert {
             self.hash.hash.clone(),
             self.price_level,
             self.symbol.clone(),
-            self.time,
+            self.unixtime,
         );
 
         println!("Alert triggered for symbol: {}", self.symbol);
     }
-}
+} */

@@ -8,7 +8,7 @@
 //
 // we also expect our authenticated supabase client here that we authenticated in db/auth
 //
-
+/*
 use serde_json::Value;
 
 use crate::db::Supabase;
@@ -57,3 +57,4 @@ impl Hash {
         }
     }
 }
+*/

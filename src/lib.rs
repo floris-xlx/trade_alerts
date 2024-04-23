@@ -1,6 +1,4 @@
 //! # Alerts scheduler and manager for trading and price alerts
-//!
-//!
 
 // Re-exporting the modules
 pub mod alert;
@@ -11,10 +9,18 @@ pub mod errors;
 pub mod success;
 pub mod utils;
 
-// defining basic structs for easy imports
-//
-//
-//
+/// Represents the components used to generate a hash.
+/// This struct does not include time as it fetches the current time dynamically when generating the hash.
+pub struct HashComponents {
+    /// A floating point number representing the price level.
+    price_level: f64,
+    /// A unique identifier for the user.
+    user_id: String,
+    /// The symbol associated with the price level, e.g., stock ticker.
+    symbol: String,
+}
+
+/// ## Hash
 pub struct Hash {
     pub hash: String,
 }
@@ -23,8 +29,6 @@ pub struct Hash {
 pub struct Alert {
     pub hash: Hash,
     pub price_level: f64,
-    /// In theory we could implement a type for the symbol, but as there's virtually 13.5k+ symbols
-    /// we will just use a string for now and not restrict you
+    pub user_id: String,
     pub symbol: String,
-    pub time: i64,
 }
