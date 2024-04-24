@@ -39,7 +39,7 @@ impl HashComponents {
     /// let hash = components.generate_hash();
     /// println!("Generated Hash: {}", hash);
     /// ```
-    pub fn generate_hash(&self) -> String {
+    pub async fn generate_hash(&self) -> String {
         let mut hasher = Sha256::new();
 
         // Get the current Unix time from the system clock.

@@ -1,15 +1,9 @@
 //! Data management for incoming price data feeds
-//!
 
 pub mod auth;
 pub mod cache;
 pub mod client;
 pub mod request;
-
-// here you will build the main structs for connecting to data feed apis like xylex or twelvedata
-//
-//
-//
 
 /// ## Xylex API for data feeds
 ///

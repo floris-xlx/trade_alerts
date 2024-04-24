@@ -3,11 +3,14 @@
 //! This module contains the implementation of a client that interacts with Supabase.
 //! Supabase is an open source Firebase alternative, providing database storage,
 //! authentication, and other services.
+//! 
+use std::error::Error;
 
-use crate::db::Supabase;
+use serde_json::json;
+
+use crate::db::{Supabase,TableConfig};
 use crate::errors::SupabaseError;
 use crate::Alert;
-use serde_json::json;
 
 impl Supabase {
     /// Adds an alert to the Supabase database using the provided `Alert` struct.
@@ -36,33 +39,25 @@ impl Supabase {
     ///     }
     /// }
     /// ```
-    pub async fn add_alert(&self, alert: Alert) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn add_alert(&self, alert: Alert, config: TableConfig) -> Result<(), Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
 
-        let table_name = "alerts";
-
-        // Use the fields from the Alert struct for insertion
+        // Use the fields from the TableConfig struct for dynamic table and column names
         let response: Result<String, String> = supabase
             .insert_if_unique(
-                table_name,
+                &config.tablename,
                 json!({
-                    "hash": alert.hash.hash,
-                    "price_level": alert.price_level,
-                    "user_id": alert.user_id,
-                    "symbol": alert.symbol,
+                    config.hash_column_name: alert.hash.hash,
+                    config.price_level_column_name: alert.price_level,
+                    config.user_id_column_name: alert.user_id,
+                    config.symbol_column_name: alert.symbol,
                 }),
             )
             .await;
 
         match response {
-            Ok(response) => {
-                println!("Response: {}", response);
-                Ok(())
-            }
-            Err(e) => {
-                println!("Error: {}", e);
-                Err(Box::new(SupabaseError::InsertionError(e)))
-            }
+            Ok(_) => Ok(()),
+            Err(e) => Err(Box::new(SupabaseError::InsertionError(e)))
         }
     }
 }

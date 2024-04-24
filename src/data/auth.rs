@@ -18,7 +18,7 @@ impl XylexApi {
 
     /// ## Authenticate the Xylex API via env variables
     ///
-    pub fn authenticate() -> Self {
+    pub async fn authenticate() -> Self {
         dotenv().ok();
 
         let key = var("XYLEX_API_KEY").expect("XYLEX_API_KEY not found in .env file");

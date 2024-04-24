@@ -50,13 +50,12 @@ impl Supabase {
     /// - This function will panic if the key or url is not found in the `.env` file
     /// - If the `.env` file is not found, it will panic
     ///
-    pub fn new_env() -> Self {
-        let key = var("SUPABASE_KEY").expect("SUPABASE_KEY not found in .env file");
-        let url = var("SUPABASE_URL").expect("SUPABASE_URL not found in .env file");
+    pub async fn new_env() -> Result<Self, Box<dyn std::error::Error>> {
+        let key = var("SUPABASE_KEY").map_err(|e| format!("SUPABASE_KEY error: {}", e))?;
+        let url = var("SUPABASE_URL").map_err(|e| format!("SUPABASE_URL error: {}", e))?;
 
-        Self { key, url }
+        Ok(Self { key, url })
     }
-
     /// ## Authenticate the Supabase client
     /// This function authenticates the Supabase client
     /// It returns a `SupabaseClient` instance

@@ -6,7 +6,7 @@
 //! - `TwelveData`
 //!
 
-use crate::data::XylexApi;
+//use crate::data::XylexApi;
 
 // ## Implement the XylexApi struct for Request
 //
