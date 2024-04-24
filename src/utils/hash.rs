@@ -8,11 +8,11 @@
 //
 // we also expect our authenticated supabase client here that we authenticated in db/auth
 //
-/*
-use serde_json::Value;
 
 use crate::db::Supabase;
 use crate::Hash;
+use serde_json::Value;
+use supabase_rs::select as supabase;
 
 impl Hash {
     /// ## Verify
@@ -31,13 +31,14 @@ impl Hash {
     /// let is_valid = hash.verify(&supabase);
     /// ```
     pub async fn verify(&self, supabase: &Supabase) -> bool {
+        let supabase = Supabase::authenticate(supabase).await;
         // we will implement this later
         let hash_table_name: String = "hash_alerts".to_string();
         let hash_column_name: String = "alert_hash".to_string();
 
         let data: Result<Vec<Value>, String> = supabase
-            .select(hash_table_name)
-            .eq(hash_column_name, self.hash)
+            .select(&hash_table_name)
+            .eq(&hash_column_name, &self.hash)
             .execute()
             .await;
 
@@ -57,4 +58,3 @@ impl Hash {
         }
     }
 }
-*/
