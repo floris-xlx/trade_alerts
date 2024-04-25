@@ -39,11 +39,13 @@ async fn main() {
         hash_column_name: "hash".to_string(),
     };
 
-    // Call the delete_alert function
-    let result = supabase.delete_alert(alert, table_config).await;
+    let user_id = "user123";
+    let hashes_result = supabase.fetch_hashes_by_user_id(user_id, table_config.clone()).await;
 
-    match result {
-        Ok(_) => println!("Alert deleted successfully."),
-        Err(e) => eprintln!("Failed to delete alert: {}", e),
+    match hashes_result {
+        Ok(hashes) => {
+            println!("Hashes for user {}: {:?}", user_id, hashes);
+        },
+        Err(e) => eprintln!("Failed to fetch hashes: {}", e),
     }
 }

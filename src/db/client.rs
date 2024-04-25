@@ -94,10 +94,39 @@ impl Supabase {
         }
     }
 
-    async fn fetch_id_with_hash(&self, hash: &str, config: TableConfig) -> Result<i64, Box<dyn Error + Send + Sync>> {
 
-        println!("{}", hash);
-        println!("{}", config.hash_column_name);
+    /// Fetches all hashes for a given user ID from the Supabase database.
+    ///
+    /// # Parameters
+    /// - `user_id`: The user ID for which to fetch hashes.
+    /// - `config`: A `TableConfig` struct containing the table and column names configuration.
+    ///
+    /// # Returns
+    /// A `Result` containing a vector of hashes or an error.
+    ///
+    /// # Errors
+    /// Returns an error if the query execution fails.
+    pub async fn fetch_hashes_by_user_id(&self, user_id: &str, config: TableConfig) -> Result<Vec<String>, Box<dyn Error + Send + Sync>> {
+        let supabase = Supabase::authenticate(&self).await;
+
+        let response: Result<Vec<Value>, String> = supabase
+            .select(&config.tablename)
+            .eq(&config.user_id_column_name, user_id)
+            .execute()
+            .await;
+
+        match response {
+            Ok(values) => {
+                let hashes: Vec<String> = values.iter()
+                    .filter_map(|value| value.get(&config.hash_column_name).and_then(|v| v.as_str().map(String::from)))
+                    .collect();
+                Ok(hashes)
+            },
+            Err(e) => Err(Box::new(SupabaseError::FetchError(e)))
+        }
+    }
+
+    async fn fetch_id_with_hash(&self, hash: &str, config: TableConfig) -> Result<i64, Box<dyn Error + Send + Sync>> {
     
         let supabase = Supabase::authenticate(&self).await;
     
@@ -106,8 +135,6 @@ impl Supabase {
             .eq(&config.hash_column_name, hash)
             .execute()
             .await;
-    
-        println!("{:?}", response);
     
         match response {
             Ok(values) => {
