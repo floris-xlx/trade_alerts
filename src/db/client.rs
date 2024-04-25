@@ -23,25 +23,7 @@ impl Supabase {
     ///
     /// # Returns
     /// A `Result` indicating success or error in insertion.
-    ///
-    /// # Examples
-    /// ```
-    /// async fn run_example() {
-    ///     let client = Supabase::new(/* parameters */);
-    ///     let alert = Alert {
-    ///         hash: Hash { hash: "unique-hash".to_string() },
-    ///         price_level: 150.0,
-    ///         user_id: "user123".to_string(),
-    ///         symbol: "AAPL".to_string(),
-    ///     };
-    ///     let result = client.add_alert(alert).await;
-    ///
-    ///     match result {
-    ///         Ok(()) => println!("Alert added successfully"),
-    ///         Err(e) => eprintln!("Error adding alert: {}", e),
-    ///     }
-    /// }
-    /// ```
+
     pub async fn add_alert(&self, alert: Alert, config: TableConfig) -> Result<(), Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
 

@@ -30,7 +30,7 @@ impl Supabase {
     ///
     /// ### Usage example
     /// ```rust
-    /// use alerts_manager::db::Supabase;
+    /// use trade_alerts::db::Supabase;
     ///
     /// let supabase = Supabase::new("key".to_string(), "url".to_string());
     /// ```

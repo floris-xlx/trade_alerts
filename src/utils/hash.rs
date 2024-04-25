@@ -19,15 +19,20 @@ impl Hash {
     ///
     /// ### Usage
     /// ```rust
-    /// use alerts_manager::Hash;
+    /// use trade_alerts::Hash;
+    /// use trade_alerts::db::{Supabase, TableConfig};
     ///
-    /// let hash = Hash {
-    ///     hash: "hash".to_string(),
-    /// };
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let hash = Hash {
+    ///         hash: "hash".to_string(),
+    ///     };
     ///
-    /// let supabase = Supabase::new("key".to_string(), "url".to_string());
+    ///     let supabase = Supabase::new("key".to_string(), "url".to_string());
+    ///     let table_config = TableConfig::new(); // Assuming a method to create a new TableConfig
     ///
-    /// let is_valid = hash.verify(&supabase);
+    ///     let is_valid = hash.verify(&supabase, &table_config).await;
+    /// }
     /// ```
     pub async fn verify(&self, supabase: &Supabase, table_config: &TableConfig) -> bool {
         let supabase = Supabase::authenticate(supabase).await;

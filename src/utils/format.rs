@@ -15,6 +15,7 @@ impl HashComponents {
     /// # Examples
     ///
     /// ```
+    /// use trade_alerts::HashComponents;
     /// let components = HashComponents::new(100.0, "user123".to_string(), "AAPL".to_string());
     /// ```
     pub fn new(price_level: f64, user_id: String, symbol: String) -> Self {
@@ -35,9 +36,15 @@ impl HashComponents {
     /// # Examples
     ///
     /// ```
-    /// let components = HashComponents::new(100.0, "user123".to_string(), "AAPL".to_string());
-    /// let hash = components.generate_hash();
-    /// println!("Generated Hash: {}", hash);
+    /// use trade_alerts::HashComponents;
+    /// use tokio; // assuming the use of Tokio for async runtime
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let components = HashComponents::new(100.0, "user123".to_string(), "AAPL".to_string());
+    ///     let hash = components.generate_hash().await;
+    ///     println!("Generated Hash: {}", hash);
+    /// }
     /// ```
     pub async fn generate_hash(&self) -> String {
         let mut hasher = Sha256::new();
