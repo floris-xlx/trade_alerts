@@ -38,17 +38,19 @@ impl XylexApi {
         // Check which alerts are triggered
         let mut triggered_hashes = Vec::new();
         for data in all_data {
-            if let Some(symbol) = data.get(&config.symbol_column_name).and_then(|v| v.as_str()) {
-                if let Some(price_level) = data.get(&config.price_level_column_name).and_then(|v| v.as_f64()) {
+            match (
+                data.get(&config.symbol_column_name).and_then(|v| v.as_str()),
+                data.get(&config.price_level_column_name).and_then(|v| v.as_f64()),
+                data.get(&config.hash_column_name).and_then(|v| v.as_str())
+            ) {
+                (Some(symbol), Some(price_level), Some(hash)) => {
                     if let Some((_, fetched_price)) = prices.iter().find(|(s, _)| s == symbol) {
-                        // Check if the fetched price is within the specified bounds
                         if *fetched_price <= price_level * 1.00001 && *fetched_price >= price_level * 0.99999 {
-                            if let Some(hash) = data.get(&config.hash_column_name).and_then(|v| v.as_str()) {
-                                triggered_hashes.push(hash.to_string());
-                            }
+                            triggered_hashes.push(hash.to_string());
                         }
                     }
-                }
+                },
+                _ => {}
             }
         }
     

@@ -32,7 +32,6 @@ impl Hash {
         table_config: &TableConfig
     ) -> bool {
         let supabase = Supabase::authenticate(supabase).await;
-        // we will implement this later
         let hash_table_name: String = table_config.tablename.clone();
         let hash_column_name: String =  table_config.hash_column_name.clone();
 

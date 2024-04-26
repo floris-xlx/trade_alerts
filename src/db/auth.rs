@@ -70,7 +70,7 @@ impl Supabase {
     pub async fn authenticate(
         &self
     ) -> SupabaseClient {
-        dotenv().ok(); // Load the .env file
+        dotenv().ok();
 
         let supabase_client: SupabaseClient =
             SupabaseClient::new(var("SUPABASE_URL").unwrap(), var("SUPABASE_KEY").unwrap());

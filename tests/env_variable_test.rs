@@ -3,8 +3,7 @@ use dotenv::dotenv;
 
 #[test]
 fn test_env_vars() {
-    dotenv().ok(); // Load the .env file
-
+    dotenv().ok();
     let xylex_api_key = env::var("XYLEX_API_KEY").expect("XYLEX_API_KEY not found");
     assert!(!xylex_api_key.trim().is_empty(), "XYLEX_API_KEY is empty");
 
