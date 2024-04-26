@@ -63,10 +63,10 @@ impl Supabase {
     pub async fn delete_alert(&self, alert: Alert, config: TableConfig) -> Result<(), Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
     
-        let id_result = self.fetch_id_with_hash(&alert.hash.hash, config.clone()).await; // Clone config here
+        let id_result = self.fetch_id_with_hash(&alert.hash.hash, config.clone()).await;
         match id_result {
             Ok(id) => {
-                let delete_result = supabase.delete(&config.tablename, &id.to_string()).await; // config is used here again
+                let delete_result = supabase.delete(&config.tablename, &id.to_string()).await;
                 match delete_result {
                     Ok(_) => Ok(()),
                     Err(e) => Err(Box::new(SupabaseError::DeletionError(e)))
