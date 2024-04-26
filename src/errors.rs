@@ -2,7 +2,6 @@
 
 use std::fmt;
 
-
 /// An enumeration representing possible errors that can occur when interacting with Supabase services.
 #[derive(Debug)]
 pub enum SupabaseError {
