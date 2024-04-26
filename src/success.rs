@@ -29,31 +29,7 @@ impl fmt::Display for SupabaseSuccess {
     }
 }
 
-impl std::error::Error for SupabaseSuccess {}
-
-#[derive(Debug)]
-pub enum TableConfigSuccess {
-    /// Represents a successful validation of the configuration.
-    ValidConfiguration,
-    /// Represents a successful finding of the configuration file.
-    FileFound,
-    /// Represents a successful parsing of the configuration file.
-    ParseSuccess,
-}
-
-impl fmt::Display for TableConfigSuccess {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            TableConfigSuccess::ValidConfiguration => write!(f, "Configuration is valid."),
-            TableConfigSuccess::FileFound => write!(f, "Configuration file found."),
-            TableConfigSuccess::ParseSuccess => write!(f, "Configuration file parsed successfully."),
-        }
-    }
-}
-
-impl std::error::Error for TableConfigSuccess {}
-
-
+/// An enumeration representing possible success outcomes when interacting with the Xylex API.
 #[derive(Debug)]
 pub enum XylexApiSuccess {
     NetworkSuccess,
@@ -71,4 +47,3 @@ impl fmt::Display for XylexApiSuccess {
     }
 }
 
-impl std::error::Error for XylexApiSuccess {}

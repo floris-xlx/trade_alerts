@@ -13,6 +13,7 @@ use serde_json::{Value, json};
 
 use crate::db::{Supabase,TableConfig};
 use crate::errors::{SupabaseError,TableConfigError};
+use crate::success::SupabaseSuccess;
 use crate::Alert;
 
 impl Supabase {
@@ -23,11 +24,9 @@ impl Supabase {
     ///
     /// # Returns
     /// A `Result` indicating success or error in insertion.
-
-    pub async fn add_alert(&self, alert: Alert, config: TableConfig) -> Result<(), Box<dyn Error + Send + Sync>> {
+    pub async fn add_alert(&self, alert: Alert, config: TableConfig) -> Result<SupabaseSuccess, Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
-
-        // Use the fields from the TableConfig struct for dynamic table and column names
+    
         let response: Result<String, String> = supabase
             .insert_if_unique(
                 &config.tablename,
@@ -39,10 +38,10 @@ impl Supabase {
                 }),
             )
             .await;
-
+    
         match response {
-            Ok(_) => Ok(()),
-            Err(e) => Err(Box::new(SupabaseError::InsertionError("Dupliaction Error".to_string())))
+            Ok(_) => Ok(SupabaseSuccess::InsertionSuccess),
+            Err(e) => Err(Box::new(SupabaseError::InsertionError(e)))
         }
     }
 
@@ -60,7 +59,11 @@ impl Supabase {
     ///
     /// # Errors
     /// Returns an error if fetching the ID or deleting the alert fails.
-    pub async fn delete_alert(&self, alert: Alert, config: TableConfig) -> Result<(), Box<dyn Error + Send + Sync>> {
+    pub async fn delete_alert(
+        &self,
+        alert: Alert,
+        config: TableConfig
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
     
         let id_result = self.fetch_id_with_hash(&alert.hash.hash, config.clone()).await;
@@ -88,21 +91,26 @@ impl Supabase {
     ///
     /// # Errors
     /// Returns an error if the query execution fails.
-    pub async fn fetch_hashes_by_user_id(&self, user_id: &str, config: TableConfig) -> Result<Vec<String>, Box<dyn Error + Send + Sync>> {
-        let supabase = Supabase::authenticate(&self).await;
+    pub async fn fetch_hashes_by_user_id(
+        &self,
+        user_id: &str,
+        config: TableConfig
+        ) -> Result<(Vec<String>, SupabaseSuccess), Box<dyn Error + Send + Sync>> {
 
+        let supabase = Supabase::authenticate(&self).await;
+    
         let response: Result<Vec<Value>, String> = supabase
             .select(&config.tablename)
             .eq(&config.user_id_column_name, user_id)
             .execute()
             .await;
-
+    
         match response {
             Ok(values) => {
                 let hashes: Vec<String> = values.iter()
                     .filter_map(|value| value.get(&config.hash_column_name).and_then(|v| v.as_str().map(String::from)))
                     .collect();
-                Ok(hashes)
+                Ok((hashes, SupabaseSuccess::FetchSuccess))
             },
             Err(e) => Err(Box::new(SupabaseError::FetchError(e)))
         }
@@ -141,7 +149,7 @@ impl Supabase {
         &self,
         hash: &str,
         config: &TableConfig
-    ) -> Result<(String, String, String), Box<dyn Error + Send + Sync>> {
+    ) -> Result<(String, String, String, SupabaseSuccess), Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
     
         let response: Result<Vec<Value>, String> = supabase
@@ -159,8 +167,8 @@ impl Supabase {
                         .ok_or_else(|| SupabaseError::FetchError("User ID not found".to_string()))?;
     
                     let price_level = value.get(&config.price_level_column_name)
-                        .and_then(|v| v.as_f64())  // Handle as f64 first
-                        .map(|num| num.to_string())  // Convert number to String
+                        .and_then(|v| v.as_f64())
+                        .map(|num| num.to_string())
                         .ok_or_else(|| SupabaseError::FetchError("Price level not found".to_string()))?;
     
                     let symbol = value.get(&config.symbol_column_name)
@@ -168,7 +176,7 @@ impl Supabase {
                         .map(String::from)
                         .ok_or_else(|| SupabaseError::FetchError("Symbol not found".to_string()))?;
     
-                    Ok((user_id, price_level, symbol))
+                    Ok((user_id, price_level, symbol, SupabaseSuccess::FetchSuccess))
                 } else {
                     Err(Box::new(SupabaseError::FetchError("No results found".to_string())))
                 }
@@ -190,21 +198,21 @@ impl Supabase {
     pub async fn fetch_unique_symbols(
         &self,
         config: &TableConfig
-    ) -> Result<HashSet<String>, Box<dyn Error + Send + Sync>> {
+    ) -> Result<(HashSet<String>, SupabaseSuccess), Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
-
+    
         let response: Result<Vec<Value>, String> = supabase
             .select(&config.tablename)
             .execute()
             .await;
-
+    
         match response {
             Ok(values) => {
                 let symbols: HashSet<String> = values.iter()
                     .filter_map(|value| value.get(&config.symbol_column_name).and_then(|v| v.as_str()))
                     .map(String::from)
                     .collect();
-                Ok(symbols)
+                Ok((symbols, SupabaseSuccess::FetchSuccess))
             },
             Err(e) => Err(Box::new(SupabaseError::FetchError(e)))
         }

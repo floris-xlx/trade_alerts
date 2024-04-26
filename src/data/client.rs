@@ -1,9 +1,30 @@
 use std::collections::HashSet;
 use crate::data::XylexApi;
-use crate::errors::XylexApiError;
 use crate::db::{Supabase,TableConfig};
 
+#[allow(unused_imports)]
+use crate::errors::{SupabaseError, XylexApiError};
+#[allow(unused_imports)]
+use crate::success::{SupabaseSuccess, XylexApiSuccess};
+
+/// Implementation of `XylexApi` providing functionalities to interact with financial data APIs.
 impl XylexApi {
+    /// Fetches real-time prices for a set of symbols.
+    ///
+    /// # Arguments
+    /// * `symbols` - A `HashSet` containing symbol strings for which prices need to be fetched.
+    ///
+    /// # Returns
+    /// A `Result` which is either:
+    /// - `Ok(Vec<(String, f64)>)` - A vector of tuples where each tuple contains a symbol and its corresponding price.
+    /// - `Err(XylexApiError)` - An error occurred during the fetching of prices.
+    ///
+    /// # Examples
+    /// ```
+    /// let api = XylexApi::new();
+    /// let symbols = HashSet::from(["AAPL", "GOOGL"]);
+    /// let prices = api.fetch_prices_for_symbols(symbols).await;
+    /// ```
     pub async fn fetch_prices_for_symbols(
         &self,
         symbols: HashSet<&str>
@@ -22,13 +43,31 @@ impl XylexApi {
         Ok(results)
     }
 
+    /// Checks and fetches alerts that are triggered based on current price levels.
+    ///
+    /// # Arguments
+    /// * `supabase` - A reference to a `Supabase` client.
+    /// * `config` - A reference to a `TableConfig` which contains configuration for database tables.
+    ///
+    /// # Returns
+    /// A `Result` which is either:
+    /// - `Ok(Vec<String>)` - A vector of hash strings representing the triggered alerts.
+    /// - `Err(XylexApiError)` - An error occurred during the operation.
+    ///
+    /// # Examples
+    /// ```
+    /// let api = XylexApi::new();
+    /// let supabase = Supabase::new();
+    /// let config = TableConfig::new();
+    /// let triggered_alerts = api.check_and_fetch_triggered_alerts(&supabase, &config).await;
+    /// ```
     pub async fn check_and_fetch_triggered_alerts(
         &self,
         supabase: &Supabase,
         config: &TableConfig
     ) -> Result<Vec<String>, XylexApiError> {
         // Fetch current prices for all symbols
-        let symbols = supabase.fetch_unique_symbols(config).await.map_err(|e| XylexApiError::NetworkError(e.to_string()))?;
+        let (symbols, _success) = supabase.fetch_unique_symbols(config).await.map_err(|e| XylexApiError::NetworkError(e.to_string()))?;
         let symbol_refs: HashSet<&str> = symbols.iter().map(String::as_str).collect();
         let prices = self.fetch_prices_for_symbols(symbol_refs).await?;
     
@@ -37,6 +76,7 @@ impl XylexApi {
     
         // Check which alerts are triggered
         let mut triggered_hashes = Vec::new();
+        
         for data in all_data {
             match (
                 data.get(&config.symbol_column_name).and_then(|v| v.as_str()),
