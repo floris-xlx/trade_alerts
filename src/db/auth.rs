@@ -41,8 +41,6 @@ impl Supabase {
     ///
     /// ### Errors
     /// - This function will panic if the key or url is not found in the `.env` file
-    /// - If the `.env` file is not found, it will panic
-    ///
     pub async fn new_env() 
     -> Result<Self, Box<dyn std::error::Error>> {
 

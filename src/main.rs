@@ -1,52 +1,19 @@
 extern crate trade_alerts;
 
-use trade_alerts::data::XylexApi;
-use trade_alerts::db::{Supabase, TableConfig};
 
+use trade_alerts::HashComponents; // Ensure HashComponents is in scope
 
 #[tokio::main]
 async fn main() {
-    println!("CHAT");
 
-    dotenv::dotenv().ok();
+    let components = HashComponents::new(
+        100.0, 
+        "user123".to_string(), 
+        "AAPL".to_string()
+    );
+    // Generate a unique hash
+    let hash = components.generate_hash().await;
 
-    let supabase = match Supabase::new_env().await {
-        Ok(client) => client,
-        Err(e) => {
-            eprintln!("Failed to create Supabase client: {}", e);
-            return;
-        }
-    };
-
-    let table_config = TableConfig {
-        tablename: "alerts".to_string(),
-        symbol_column_name: "symbol".to_string(),
-        price_level_column_name: "price_level".to_string(),
-        user_id_column_name: "user_id".to_string(),
-        hash_column_name: "hash".to_string(),
-    };
-
-    // Initialize XylexApi using the authenticate method
-    let xylex_api = XylexApi::authenticate().await;
-
-    // Test check_and_fetch_triggered_alerts
-    match xylex_api.check_and_fetch_triggered_alerts(&supabase, &table_config).await {
-        Ok(triggered_hashes) => {
-            if triggered_hashes.is_empty() {
-                println!("No alerts triggered.");
-            } else {
-                println!("Triggered alert hashes: {:?}", triggered_hashes);
-
-                // Test delete_triggered_alerts_by_hashes
-                match xylex_api.delete_triggered_alerts_by_hashes(&supabase, &table_config, triggered_hashes).await {
-                    Ok(_) => println!("Successfully deleted triggered alerts."),
-                    Err(e) => eprintln!("Failed to delete triggered alerts: {:?}", e),
-                }
-            }
-        },
-        Err(e) => {
-            eprintln!("Failed to check and fetch triggered alerts: {:?}", e);
-            return;
-        }
-    };
+    // Print the generated hash
+    println!("Generated Hash: {}", hash);
 }

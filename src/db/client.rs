@@ -42,7 +42,7 @@ impl Supabase {
 
         match response {
             Ok(_) => Ok(()),
-            Err(e) => Err(Box::new(SupabaseError::InsertionError(e)))
+            Err(e) => Err(Box::new(SupabaseError::InsertionError("Dupliaction Error".to_string())))
         }
     }
 
@@ -280,26 +280,30 @@ impl Supabase {
 
 
 impl TableConfig {
-    /// Creates a new `TableConfig` instance with predefined default values.
+    /// Creates a new `TableConfig` instance with specified values.
     ///
-    /// This method is useful for quickly setting up a `TableConfig` with standard,
-    /// hardcoded values for testing or development purposes.
+    /// # Parameters
+    /// - `tablename`: The name of the table.
+    /// - `hash_column_name`: The column name for hash values.
+    /// - `price_level_column_name`: The column name for price levels.
+    /// - `user_id_column_name`: The column name for user IDs.
+    /// - `symbol_column_name`: The column name for symbols.
     ///
     /// # Returns
-    /// Returns a `TableConfig` instance with the following default values:
-    /// - `tablename`: "default_table"
-    /// - `hash_column_name`: "hash"
-    /// - `price_level_column_name`: "price_level"
-    /// - `user_id_column_name`: "user_id"
-    /// - `symbol_column_name`: "symbol"
-    pub fn new() 
-    -> Self {
+    /// Returns a `TableConfig` instance with the specified values.
+    pub fn new(
+        tablename: String,
+        hash_column_name: String,
+        price_level_column_name: String,
+        user_id_column_name: String,
+        symbol_column_name: String,
+    ) -> Self {
         TableConfig {
-            tablename: "default_table".to_string(),
-            hash_column_name: "hash".to_string(),
-            price_level_column_name: "price_level".to_string(),
-            user_id_column_name: "user_id".to_string(),
-            symbol_column_name: "symbol".to_string(),
+            tablename,
+            hash_column_name,
+            price_level_column_name,
+            user_id_column_name,
+            symbol_column_name,
         }
     }
 
@@ -322,7 +326,7 @@ impl TableConfig {
     ///
     /// # Errors
     /// Returns `TableConfigError::InvalidConfiguration` if any of the required environment variables are not set.
-    pub fn new_from_env() 
+    pub fn new_env() 
     -> Result<Self, TableConfigError> {
         dotenv().ok(); // Load the .env file
 
