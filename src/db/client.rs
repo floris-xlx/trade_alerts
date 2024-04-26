@@ -238,7 +238,7 @@ impl Supabase {
 
 
     
-    async fn fetch_id_with_hash(&self, hash: &str, config: TableConfig) -> Result<i64, Box<dyn Error + Send + Sync>> {
+    pub async fn fetch_id_with_hash(&self, hash: &str, config: TableConfig) -> Result<i64, Box<dyn Error + Send + Sync>> {
     
         let supabase = Supabase::authenticate(&self).await;
     

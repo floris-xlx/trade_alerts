@@ -1,7 +1,7 @@
 use crate::data::XylexApi;
 use std::collections::HashSet;
 use crate::errors::XylexApiError;
-use crate::db::{Supabase, TableConfig};
+use crate::db::*;
 
 impl XylexApi {
     pub async fn fetch_prices_for_symbols(
@@ -53,5 +53,30 @@ impl XylexApi {
         }
     
         Ok(triggered_hashes)
+    }
+
+    pub async fn delete_triggered_alerts_by_hashes(
+        &self,
+        supabase: &Supabase,
+        config: &TableConfig,
+        hashes: Vec<String>
+    ) -> Result<(), XylexApiError> {
+
+        let supabase_client= supabase.authenticate().await;
+
+        for hash in hashes {
+            let id_result = supabase.fetch_id_with_hash(&hash, config.clone()).await;
+            match id_result {
+                Ok(id) => {
+                    let delete_result = supabase_client.delete(&config.tablename, &id.to_string()).await;
+                    match delete_result {
+                        Ok(_) => continue,
+                        Err(e) => return Err(XylexApiError::NetworkError(e.to_string())),
+                    }
+                },
+                Err(e) => return Err(XylexApiError::NetworkError(e.to_string())),
+            }
+        }
+        Ok(())
     }
 }

@@ -2,8 +2,7 @@ extern crate trade_alerts;
 
 use trade_alerts::data::XylexApi;
 use trade_alerts::db::{Supabase, TableConfig};
-use std::collections::HashSet;
-use std::error::Error;
+
 
 #[tokio::main]
 async fn main() {
@@ -37,6 +36,12 @@ async fn main() {
                 println!("No alerts triggered.");
             } else {
                 println!("Triggered alert hashes: {:?}", triggered_hashes);
+
+                // Test delete_triggered_alerts_by_hashes
+                match xylex_api.delete_triggered_alerts_by_hashes(&supabase, &table_config, triggered_hashes).await {
+                    Ok(_) => println!("Successfully deleted triggered alerts."),
+                    Err(e) => eprintln!("Failed to delete triggered alerts: {:?}", e),
+                }
             }
         },
         Err(e) => {
