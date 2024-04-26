@@ -1,23 +1,16 @@
 //! ## Authentication to data API's
-//!
-//!
-//!
-//!
 
-use dotenv::dotenv;
 use std::env::var;
-
+use dotenv::dotenv;
 use crate::data::XylexApi;
 
 /// ## Implementing the XylexApi struct for authentication to the Xylex API
-///
 impl XylexApi {
     pub fn new(key: String, endpoint: String) -> Self {
         Self { key, endpoint }
     }
 
     /// ## Authenticate the Xylex API via env variables
-    ///
     pub async fn authenticate() -> Self {
         dotenv().ok();
 

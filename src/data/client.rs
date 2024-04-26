@@ -1,7 +1,7 @@
-use crate::data::XylexApi;
 use std::collections::HashSet;
+use crate::data::XylexApi;
 use crate::errors::XylexApiError;
-use crate::db::*;
+use crate::db::{Supabase,TableConfig};
 
 impl XylexApi {
     pub async fn fetch_prices_for_symbols(

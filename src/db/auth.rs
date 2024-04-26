@@ -34,7 +34,10 @@ impl Supabase {
     ///
     /// let supabase = Supabase::new("key".to_string(), "url".to_string());
     /// ```
-    pub fn new(key: String, url: String) -> Self {
+    pub fn new(
+        key: String,
+        url: String)
+        -> Self {
         Self { key, url }
     }
 
@@ -50,7 +53,9 @@ impl Supabase {
     /// - This function will panic if the key or url is not found in the `.env` file
     /// - If the `.env` file is not found, it will panic
     ///
-    pub async fn new_env() -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn new_env() 
+    -> Result<Self, Box<dyn std::error::Error>> {
+
         let key = var("SUPABASE_KEY").map_err(|e| format!("SUPABASE_KEY error: {}", e))?;
         let url = var("SUPABASE_URL").map_err(|e| format!("SUPABASE_URL error: {}", e))?;
 
@@ -62,7 +67,9 @@ impl Supabase {
     ///
     /// ### Usage example
     ///
-    pub async fn authenticate(&self) -> SupabaseClient {
+    pub async fn authenticate(
+        &self
+    ) -> SupabaseClient {
         dotenv().ok(); // Load the .env file
 
         let supabase_client: SupabaseClient =

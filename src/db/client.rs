@@ -5,14 +5,16 @@
 //! authentication, and other services.
 //! 
 use std::error::Error;
-use dotenv::dotenv;
-
-use serde_json::{Value, json};
 use std::env;
+use std::collections::{HashSet,HashMap};
+
+use dotenv::dotenv;
+use serde_json::{Value, json};
+
 use crate::db::{Supabase,TableConfig};
 use crate::errors::{SupabaseError,TableConfigError};
 use crate::Alert;
-use std::collections::{HashSet,HashMap};
+
 impl Supabase {
     /// Adds an alert to the Supabase database using the provided `Alert` struct.
     ///

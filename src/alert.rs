@@ -10,7 +10,12 @@ impl Alert {
     ///
     /// This function creates a new Alert instance and upserts it into the database
     ///
-    pub fn new(hash: Hash, price_level: f64, symbol: String, user_id: String) -> Self {
+    pub fn new(
+        hash: Hash,
+        price_level: f64,
+        symbol: String,
+        user_id: String
+    ) -> Self {
         Self {
             hash,
             price_level,
@@ -21,8 +26,11 @@ impl Alert {
 
     /// ## Add Alert
     /// This will handle a new alert
-    pub async fn add_alert(&self, supabase: &Supabase, table_config: &TableConfig) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let response = supabase.add_alert(self.clone(), table_config.clone()).await; // Pass table_config to supabase
+    pub async fn add_alert(
+        &self, supabase: &Supabase,
+        table_config: &TableConfig
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let response = supabase.add_alert(self.clone(), table_config.clone()).await;
         match response {
             Ok(_) => {
                 println!("Alert triggered for symbol: {}", self.symbol);

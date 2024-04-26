@@ -1,17 +1,9 @@
 //! ## Hash implementations
-//!
-//!
 
-// here you will impmement the hash functions
-// like verifying if the hash is valid against the supa table `hash_alerts` (this doesnt exist
-// yey)
-//
-// we also expect our authenticated supabase client here that we authenticated in db/auth
-//
-
-use crate::db::{Supabase,TableConfig};
 use crate::Hash;
 use serde_json::Value;
+
+use crate::db::{Supabase,TableConfig};
 
 impl Hash {
     /// ## Verify
@@ -34,7 +26,11 @@ impl Hash {
     ///     let is_valid = hash.verify(&supabase, &table_config).await;
     /// }
     /// ```
-    pub async fn verify(&self, supabase: &Supabase, table_config: &TableConfig) -> bool {
+    pub async fn verify(
+        &self,
+        supabase: &Supabase,
+        table_config: &TableConfig
+    ) -> bool {
         let supabase = Supabase::authenticate(supabase).await;
         // we will implement this later
         let hash_table_name: String = table_config.tablename.clone();
