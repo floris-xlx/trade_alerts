@@ -211,7 +211,10 @@ impl Supabase {
     }
 
 
-    pub async fn fetch_all_data(&self, config: &TableConfig) 
+    pub async fn fetch_all_data(
+        &self,
+        config: &TableConfig
+    ) 
     -> Result<Vec<HashMap<String, Value>>, Box<dyn Error + Send + Sync>> {
     let supabase = Supabase::authenticate(&self).await;
 
@@ -240,7 +243,10 @@ impl Supabase {
 
 
     
-    pub async fn fetch_id_with_hash(&self, hash: &str, config: TableConfig) -> Result<i64, Box<dyn Error + Send + Sync>> {
+    pub async fn fetch_id_with_hash(
+        &self, hash: &str,
+        config: TableConfig
+    ) -> Result<i64, Box<dyn Error + Send + Sync>> {
     
         let supabase = Supabase::authenticate(&self).await;
     
@@ -286,7 +292,8 @@ impl TableConfig {
     /// - `price_level_column_name`: "price_level"
     /// - `user_id_column_name`: "user_id"
     /// - `symbol_column_name`: "symbol"
-    pub fn new() -> Self {
+    pub fn new() 
+    -> Self {
         TableConfig {
             tablename: "default_table".to_string(),
             hash_column_name: "hash".to_string(),
@@ -315,7 +322,8 @@ impl TableConfig {
     ///
     /// # Errors
     /// Returns `TableConfigError::InvalidConfiguration` if any of the required environment variables are not set.
-    pub fn new_from_env() -> Result<Self, TableConfigError> {
+    pub fn new_from_env() 
+    -> Result<Self, TableConfigError> {
         dotenv().ok(); // Load the .env file
 
         let tablename = match env::var("TABLE_NAME") {

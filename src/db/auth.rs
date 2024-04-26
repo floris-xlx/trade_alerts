@@ -1,22 +1,12 @@
 //! ## Datbase Authentication
-//!
+
+use std::env::var;
 
 use dotenv::dotenv;
-use std::env::var;
 use supabase_rs::SupabaseClient;
 
 use crate::db::Supabase;
 
-/// ## Implementing the Supabase struct
-///
-///
-/// ### Implementations
-///
-///
-/// ### Usage examples
-///
-///
-/// ### Errors
 impl Supabase {
     /// ## New
     /// You pass in any `String` key and `String` url to create a new Supabase instance

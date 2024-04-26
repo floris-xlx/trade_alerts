@@ -6,12 +6,16 @@ use crate::data::XylexApi;
 
 /// ## Implementing the XylexApi struct for authentication to the Xylex API
 impl XylexApi {
-    pub fn new(key: String, endpoint: String) -> Self {
+    pub fn new(
+        key: String,
+        endpoint: String
+    ) -> Self {
         Self { key, endpoint }
     }
 
     /// ## Authenticate the Xylex API via env variables
-    pub async fn authenticate() -> Self {
+    pub async fn authenticate()
+    -> Self {
         dotenv().ok();
 
         let key = var("XYLEX_API_KEY").expect("XYLEX_API_KEY not found in .env file");
