@@ -6,15 +6,13 @@
 //! 
 use std::error::Error;
 use dotenv::dotenv;
-use std::fs::File;
-use std::io::Read;
-use serde_yaml;
+
 use serde_json::{Value, json};
 use std::env;
 use crate::db::{Supabase,TableConfig};
 use crate::errors::{SupabaseError,TableConfigError};
 use crate::Alert;
-
+use std::collections::{HashSet,HashMap};
 impl Supabase {
     /// Adds an alert to the Supabase database using the provided `Alert` struct.
     ///
@@ -108,6 +106,138 @@ impl Supabase {
         }
     }
 
+    pub async fn fetch_all_hashes(
+        &self,
+        config: &TableConfig)
+         -> Result<Vec<String>, Box<dyn Error + Send + Sync>> {
+    
+        
+            let response = self.fetch_all_data(config).await;
+            match response {
+            Ok(values) => {
+                let hashes: Vec<String> = values.iter()
+                    .filter_map(|value| value.get(&config.hash_column_name).and_then(|v| v.as_str().map(String::from)))
+                    .collect();
+                Ok(hashes)
+            },
+            Err(e) => Err(e) 
+        }
+    }
+
+    /// Fetches the user ID, price level, and symbol for a given hash from the Supabase database.
+    ///
+    /// # Parameters
+    /// - `hash`: The hash of the alert to fetch details for.
+    /// - `config`: A `TableConfig` struct containing the table and column names configuration.
+    ///
+    /// # Returns
+    /// A `Result` containing a tuple of (user_id, price_level, symbol) or an error.
+    ///
+    /// # Errors
+    /// Returns an error if the query execution fails or the expected data is not found.
+    pub async fn fetch_details_by_hash(
+        &self,
+        hash: &str,
+        config: &TableConfig
+    ) -> Result<(String, String, String), Box<dyn Error + Send + Sync>> {
+        let supabase = Supabase::authenticate(&self).await;
+    
+        let response: Result<Vec<Value>, String> = supabase
+            .select(&config.tablename)
+            .eq(&config.hash_column_name, hash)
+            .execute()
+            .await;
+        
+        match response {
+            Ok(values) => {
+                if let Some(value) = values.first() {
+                    let user_id = value.get(&config.user_id_column_name)
+                        .and_then(|v| v.as_str())
+                        .map(String::from)
+                        .ok_or_else(|| SupabaseError::FetchError("User ID not found".to_string()))?;
+    
+                    let price_level = value.get(&config.price_level_column_name)
+                        .and_then(|v| v.as_f64())  // Handle as f64 first
+                        .map(|num| num.to_string())  // Convert number to String
+                        .ok_or_else(|| SupabaseError::FetchError("Price level not found".to_string()))?;
+    
+                    let symbol = value.get(&config.symbol_column_name)
+                        .and_then(|v| v.as_str())
+                        .map(String::from)
+                        .ok_or_else(|| SupabaseError::FetchError("Symbol not found".to_string()))?;
+    
+                    Ok((user_id, price_level, symbol))
+                } else {
+                    Err(Box::new(SupabaseError::FetchError("No results found".to_string())))
+                }
+            },
+            Err(e) => Err(Box::new(SupabaseError::FetchError(e)))
+        }
+    }
+
+    /// Fetches all unique symbols from the Supabase database.
+    ///
+    /// # Parameters
+    /// - `config`: A `TableConfig` struct containing the table and column names configuration.
+    ///
+    /// # Returns
+    /// A `Result` containing a `HashSet` of symbols or an error.
+    ///
+    /// # Errors
+    /// Returns an error if the query execution fails.
+    pub async fn fetch_unique_symbols(
+        &self,
+        config: &TableConfig
+    ) -> Result<HashSet<String>, Box<dyn Error + Send + Sync>> {
+        let supabase = Supabase::authenticate(&self).await;
+
+        let response: Result<Vec<Value>, String> = supabase
+            .select(&config.tablename)
+            .execute()
+            .await;
+
+        match response {
+            Ok(values) => {
+                let symbols: HashSet<String> = values.iter()
+                    .filter_map(|value| value.get(&config.symbol_column_name).and_then(|v| v.as_str()))
+                    .map(String::from)
+                    .collect();
+                Ok(symbols)
+            },
+            Err(e) => Err(Box::new(SupabaseError::FetchError(e)))
+        }
+    }
+
+
+    pub async fn fetch_all_data(&self, config: &TableConfig) 
+    -> Result<Vec<HashMap<String, Value>>, Box<dyn Error + Send + Sync>> {
+    let supabase = Supabase::authenticate(&self).await;
+
+    let response: Result<Vec<Value>, String> = supabase
+        .select(&config.tablename)
+        .execute()
+        .await;
+
+    // Convert Vec<Value> to Vec<HashMap<String, Value>>
+    match response {
+        Ok(values) => {
+            let mut hash_maps = Vec::new();
+            for value in values {
+                if let Value::Object(map) = value {
+                    let hash_map: HashMap<String, Value> = map.into_iter().collect();
+                    hash_maps.push(hash_map);
+                } else {
+                    return Err(Box::new(SupabaseError::FetchError("Unexpected value type".to_string())));
+                }
+            }
+            Ok(hash_maps)
+        },
+        Err(e) => Err(Box::new(SupabaseError::FetchError(e)))
+    }
+    }
+
+
+    
     async fn fetch_id_with_hash(&self, hash: &str, config: TableConfig) -> Result<i64, Box<dyn Error + Send + Sync>> {
     
         let supabase = Supabase::authenticate(&self).await;

@@ -57,3 +57,23 @@ impl fmt::Display for TableConfigError {
 }
 
 impl std::error::Error for TableConfigError {}
+
+
+#[derive(Debug)]
+pub enum XylexApiError {
+    NetworkError(String),
+    InvalidSymbol(String),
+    UnexpectedError(String),
+}
+
+impl fmt::Display for XylexApiError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            XylexApiError::NetworkError(msg) => write!(f, "Network error: {}", msg),
+            XylexApiError::InvalidSymbol(symbol) => write!(f, "Invalid symbol provided: {}", symbol),
+            XylexApiError::UnexpectedError(info) => write!(f, "An unexpected error occurred: {}", info),
+        }
+    }
+}
+
+impl std::error::Error for XylexApiError {}

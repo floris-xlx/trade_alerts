@@ -18,7 +18,11 @@ impl HashComponents {
     /// use trade_alerts::HashComponents;
     /// let components = HashComponents::new(100.0, "user123".to_string(), "AAPL".to_string());
     /// ```
-    pub fn new(price_level: f64, user_id: String, symbol: String) -> Self {
+    pub fn new(
+        price_level: f64,
+        user_id: String,
+        symbol: String
+    ) -> Self {
         Self {
             price_level,
             user_id,
@@ -46,7 +50,9 @@ impl HashComponents {
     ///     println!("Generated Hash: {}", hash);
     /// }
     /// ```
-    pub async fn generate_hash(&self) -> String {
+    pub async fn generate_hash(
+        &self
+    ) -> String {
         let mut hasher = Sha256::new();
 
         // Get the current Unix time from the system clock.

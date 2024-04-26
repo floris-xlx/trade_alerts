@@ -10,7 +10,7 @@ pub struct Supabase {
     pub url: String,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone,)]
 pub struct TableConfig {
     pub tablename: String,
     pub symbol_column_name: String,
