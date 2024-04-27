@@ -1,6 +1,4 @@
 //! Databasing module for the pricing alerts
-use serde::Deserialize;
-
 pub mod auth;
 pub mod client;
 
@@ -11,7 +9,7 @@ pub struct Supabase {
 }
 
 /// ## Table configuration for the trade_alerts table
-#[derive(Deserialize, Clone,)]
+#[derive(Clone,)]
 pub struct TableConfig {
     pub tablename: String,
     pub symbol_column_name: String,

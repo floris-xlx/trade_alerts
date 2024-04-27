@@ -1,3 +1,6 @@
+//! This module contains utility functions for formatting data.
+//! 
+//!
 use chrono::prelude::*;
 use sha2::{Digest, Sha256};
 
@@ -56,8 +59,8 @@ impl HashComponents {
         let mut hasher = Sha256::new();
 
         // Get the current Unix time from the system clock.
-        let now = Utc::now();
-        let unixtime = now.timestamp(); // Seconds since the Unix epoch
+        let now: DateTime<Utc> = Utc::now();
+        let unixtime: i64 = now.timestamp(); // Seconds since the Unix epoch
 
         // Update the hasher with the current Unix time and struct attributes.
         hasher.update(unixtime.to_string().as_bytes());
@@ -66,7 +69,7 @@ impl HashComponents {
         hasher.update(self.price_level.to_string().as_bytes());
 
         // Finalize the hash computation and format it.
-        let result = hasher.finalize();
+        let result: sha2::digest::generic_array::GenericArray<u8, sha2::digest::typenum::UInt<sha2::digest::typenum::UInt<sha2::digest::typenum::UInt<sha2::digest::typenum::UInt<sha2::digest::typenum::UInt<sha2::digest::typenum::UInt<sha2::digest::typenum::UTerm, sha2::digest::consts::B1>, sha2::digest::consts::B0>, sha2::digest::consts::B0>, sha2::digest::consts::B0>, sha2::digest::consts::B0>, sha2::digest::consts::B0>> = hasher.finalize();
         format!("{:x}", result)
     }
 }

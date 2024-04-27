@@ -1,3 +1,4 @@
+//! This module contains the implementation of the `XylexApi` struct which provides functionalities to interact with financial data APIs and calling relevant database operations.
 use std::collections::HashSet;
 use crate::data::XylexApi;
 use crate::db::{Supabase,TableConfig};
