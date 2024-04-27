@@ -11,9 +11,9 @@ mod tests {
     async fn test_trade_alerts_integration() {
         dotenv::dotenv().ok();
 
-        let supabase = Supabase::new_env().await.expect("Failed to create Supabase client");
+        let supabase: Supabase = Supabase::new_env().await.expect("Failed to create Supabase client");
 
-        let config = TableConfig::new(
+        let config: TableConfig = TableConfig::new(
             "alerts".to_string(),
             "hash".to_string(),
             "price_level".to_string(),
@@ -21,7 +21,7 @@ mod tests {
             "symbol".to_string(),
         );
 
-        let components = HashComponents::new(
+        let components: HashComponents = HashComponents::new(
             100.0, 
             "user123".to_string(), 
             "AAPL".to_string()

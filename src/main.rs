@@ -1,19 +1,16 @@
 extern crate trade_alerts;
 
-
-use trade_alerts::HashComponents; // Ensure HashComponents is in scope
+use trade_alerts::HashComponents;
 
 #[tokio::main]
 async fn main() {
-
-    let components = HashComponents::new(
+    let components: HashComponents = HashComponents::new(
         100.0, 
         "user123".to_string(), 
         "AAPL".to_string()
     );
-    // Generate a unique hash
+
     let hash = components.generate_hash().await;
 
-    // Print the generated hash
     println!("Generated Hash: {}", hash);
 }

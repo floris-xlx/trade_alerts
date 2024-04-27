@@ -27,117 +27,159 @@
 //! 
 //! ### Real Time Prices
 //! ```rust
-//! use trading_alerts::data::XylexApi;
+//! use trade_alerts::data::XylexApi;
 //! 
-//! let xylex_api = XylexApi::authenticate().await;
+//! #[tokio::main]
+//! async fn main() {
+//!     let xylex_api_result = XylexApi::new_env().await;
 //! 
-//! let symbol = "aud/cad";
+//!     let xylex_api = match xylex_api_result {
+//!         Ok(api) => api,
+//!         Err(e) => {
+//!             eprintln!("{:?}", e);
+//!             return;
+//!         }
+//!     };
 //! 
-//! match xylex_api.request_real_time_price(symbol).await {
-//!     Ok(price) => println!("Real-time price for {}: {}", symbol, price),
-//!     Err(e) => eprintln!("Failed to fetch real-time price: {:?}", e),
-//! };
+//!     let symbol = "aud/cad";
+//! 
+//!     match xylex_api.request_real_time_price(symbol).await {
+//!         Ok(price) => println!("Real-time price for {}: {}", symbol, price),
+//!         Err(e) => eprintln!("{:?}", e),
+//!     };
+//! }
 //! ```
 //!
 //! ### Database Interactions
 //! ```rust
-//! use trade_alerts::db::{Supabase, TableConfig};
 //! use trade_alerts::{Hash, Alert};
+//! use trade_alerts::db::{Supabase, TableConfig};
 //! use dotenv::dotenv;
 //!
-//! // Initialize Supabase client
-//! let supabase = match Supabase::new_env().await {
-//!     Ok(client) => client,
-//!     Err(e) => {
-//!         eprintln!("{}", e);
-//!         return;
-//!     },
-//! };
 //!
-//! // Define a TableConfig
-//! let config: TableConfig = TableConfig::new(
-//!     "alerts".to_string(),
-//!     "hash".to_string(),
-//!     "price_level".to_string(),
-//!     "user_id".to_string(),
-//!     "symbol".to_string(),
-//! );
+//! #[tokio::main]
+//!  async fn main() {
 //!
-//! // Create a new alert
-//! let alert: Alert = Alert::new(
-//!     Hash { hash: "unique_hash_string".to_string() },
-//!     1.2345, // price level
-//!     "aud/chf".to_string(), // symbol
-//!     "user1234".to_string() // user ID
-//! );
+//!     dotenv().ok();
 //!
-//! // Test adding an alert
-//! match supabase.add_alert(alert.clone(), config.clone()).await {
-//!     Ok(_) => println!("Alert added successfully"),
-//!     Err(e) => eprintln!("{}", e),
-//! };
+//!     // Initialize Supabase client
+//!     let supabase = match Supabase::new_env().await {
+//!         Ok(client) => client,
+//!         Err(e) => {
+//!             eprintln!("{}", e);
+//!             return;
+//!         },
+//!     };
 //!
-//! // Test fetching hashes by user ID
-//! match supabase.fetch_hashes_by_user_id(&alert.user_id, config.clone()).await {
-//!     Ok(hashes) => println!("Fetched hashes: {:?}", hashes),
-//!     Err(e) => eprintln!("{}", e),
-//! };
+//!     // Define a TableConfig
+//!     let config: TableConfig = TableConfig::new(
+//!         "alerts".to_string(),
+//!         "hash".to_string(),
+//!         "price_level".to_string(),
+//!         "user_id".to_string(),
+//!         "symbol".to_string(),
+//!     );
 //!
-//! // Test fetching details by hash
-//! match supabase.fetch_details_by_hash(&alert.hash.hash, &config).await {
-//!     Ok(details) => println!("Fetched details: {:?}", details),
-//!     Err(e) => eprintln!("{}", e),
-//! };
+//!     // Create a new alert
+//!     let alert: Alert = Alert::new(
+//!         Hash { hash: "unique_hash_string".to_string() },
+//!         1.2345, // price level
+//!         "aud/chf".to_string(), // symbol
+//!         "user1234".to_string() // user ID
+//!     );
+//!
+//!     // Test adding an alert
+//!     match supabase.add_alert(alert.clone(), config.clone()).await {
+//!         Ok(_) => println!("Alert added successfully"),
+//!         Err(e) => eprintln!("{}", e),
+//!     };
+//!
+//!     // Test fetching hashes by user ID
+//!     match supabase.fetch_hashes_by_user_id(&alert.user_id, config.clone()).await {
+//!         Ok(hashes) => println!("Fetched hashes: {:?}", hashes),
+//!         Err(e) => eprintln!("{}", e),
+//!     };
+//!
+//!     // Test fetching details by hash
+//!     match supabase.fetch_details_by_hash(&alert.hash.hash, &config).await {
+//!         Ok(details) => println!("Fetched details: {:?}", details),
+//!         Err(e) => eprintln!("{}", e),
+//!     };
+//! }
 //! ```
+//! 
 //! ### Alert Management
 //! ```rust
 //! use std::collections::HashSet;
-//! 
 //! use dotenv::dotenv;
-//! 
 //! use trade_alerts::db::{Supabase, TableConfig};
 //! use trade_alerts::data::XylexApi;
 //! 
-//! dotenv().ok(); // Load the environment variables
+//! #[tokio::main]
+//! async fn main() {
+//!     dotenv().ok(); // Load the environment variables
 //! 
-//! // Initialize Supabase client
-//! let supabase = match Supabase::new_env().await {
-//!     Ok(client) => client,
-//!     Err(e) => {
-//!         eprintln!("{}", e);
-//!         return;
-//!     },
-//! };
+//!     // Initialize Supabase client
+//!     let supabase = match Supabase::new_env().await {
+//!         Ok(client) => client,
+//!         Err(e) => {
+//!             eprintln!("{}", e);
+//!             return;
+//!         },
+//!     };
 //! 
-//! // Define a TableConfig
-//! let config: TableConfig = TableConfig::new(
-//!     "alerts".to_string(),
-//!     "hash".to_string(),
-//!     "price_level".to_string(),
-//!     "user_id".to_string(),
-//!     "symbol".to_string(),
-//! );
+//!     // Define a TableConfig
+//!     let config: TableConfig = TableConfig::new(
+//!         "alerts".to_string(),
+//!         "hash".to_string(),
+//!         "price_level".to_string(),
+//!         "user_id".to_string(),
+//!         "symbol".to_string(),
+//!     );
 //! 
-//! // Initialize XylexApi
-//! let xylex_api = XylexApi::authenticate().await;
+//!     // Initialize XylexApi
+//!     let xylex_api = match XylexApi::new_env().await {
+//!         Ok(api) => api,
+//!         Err(e) => {
+//!             eprintln!("{}", e);
+//!             return;
+//!         },
+//!     };
 //! 
-//! let symbols: HashSet<&str> = ["aud/chf", "eur/usd"].iter().cloned().collect();
+//!     let symbols: HashSet<&str> = [
+//!         "aud/chf",
+//!         "eur/usd"
+//!     ].iter().cloned().collect();
 //! 
-//! match xylex_api.fetch_prices_for_symbols(symbols).await {
-//!     Ok(prices) => println!("Prices: {:?}", prices),
-//!     Err(e) => eprintln!("{}", e),
-//! };
+//!     match xylex_api.fetch_prices_for_symbols(
+//!         symbols
+//!     ).await {
+//!         Ok(prices) => println!("Prices: {:?}", prices),
+//!         Err(e) => eprintln!("{}", e),
+//!     };
 //! 
-//! // Check and delete triggered alerts
-//! match xylex_api.check_and_fetch_triggered_alerts(&supabase, &config).await {
-//!    Ok(triggered_hashes) => {
-//!        match xylex_api.delete_triggered_alerts_by_hashes(&supabase, &config, triggered_hashes).await {
-//!            Ok(_) => println!("Triggered alerts deleted successfully"),
-//!            Err(e) => eprintln!("{}", e),
-//!        }
-//!    },
-//!    Err(e) => eprintln!("{}", e),
-//! };
+//!     // Check and delete triggered alerts
+//!     match xylex_api.check_and_fetch_triggered_alert_hashes(
+//!         &supabase,
+//!         &config
+//!     ).await {
+//!         Ok(triggered_hashes) => {
+//!             if triggered_hashes.is_empty() {
+//!                 println!("No triggered alerts.");
+//!                 return;
+//!             }
+//!             match xylex_api.delete_triggered_alerts_by_hashes(
+//!                 &supabase,
+//!                 &config,
+//!                 triggered_hashes
+//!             ).await {
+//!                 Ok(_) => println!("Successfully deleted triggered alerts"),
+//!                 Err(e) => eprintln!("{}", e),
+//!             }
+//!         },
+//!         Err(e) => eprintln!("{}", e),
+//!     };
+//! }
 //! ```
 //! 
 //! ### Hash Generation
@@ -161,7 +203,7 @@
 //! 
 //! - **[Success Types](success/index.html):**
 //!   - [`Success::SupabaseSuccess`](success/index.html#supabasesuccess): Success outcomes for Supabase operations.
-//!  - [`Success::XylexApiSuccess`](success/index.html#xylexapisuccess): Success outcomes for Xylex API operations.
+//! 
 //!
 //! - **[Error Types](error/index.html):**
 //!   - [`Error::SupabaseError`](errors/index.html#supabaseerror): Errors related to Supabase operations.
@@ -169,8 +211,16 @@
 //!   - [`Error::XylexApiError`](errors/index.html#xylexapierror): Errors related to Xylex API operations.
 //!
 //! Notes:
+//! - Not all methods are covered in the examples above. Please refer to the documentation for more details.
 //! - This library uses the supabase_rs crate for interacting with the Supabase database.
 //! - Contact us on Discord for any questions or support: **@hadi_xlx** or **@floris_xlx**.
+//! 
+//! Upcoming:
+//! - More detailed examples and use cases.
+//! - Better custom errors with more detailed and linear messaging.
+//! 
+//! License:
+//! This library is licensed under the MIT License - see the LICENSE file for details.
 
 pub mod alert;
 pub mod data;
