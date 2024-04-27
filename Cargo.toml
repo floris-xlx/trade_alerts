@@ -1,6 +1,6 @@
 [package]
 name = "trade_alerts"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Hadi hadi@xylex.ai & Floris floris@xylex.ai"]
 description = "Ligthweight framework to create and manage trade alerts"
