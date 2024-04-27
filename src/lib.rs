@@ -199,11 +199,10 @@
 //!
 //! ### Handling Success and Errors
 //! 
-//! The library provides detailed feedback for operations:
-//! 
 //! - **[Success Types](success/index.html):**
 //!   - [`Success::SupabaseSuccess`](success/index.html#supabasesuccess): Success outcomes for Supabase operations.
-//! 
+//!   - [`Success::XylexApiSuccess`](success/index.html#xylexapisuccess): Success outcomes for Xylex API operations.
+
 //!
 //! - **[Error Types](error/index.html):**
 //!   - [`Error::SupabaseError`](errors/index.html#supabaseerror): Errors related to Supabase operations.
