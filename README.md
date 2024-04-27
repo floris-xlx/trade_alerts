@@ -59,7 +59,10 @@ Here are examples of how to use the library:
      );
  
      // Adding an alert
-     match supabase.add_alert(alert.clone(), config.clone()).await {
+     match supabase.add_alert(
+        alert.clone(),
+        config.clone()
+        ).await {
          Ok(_) => println!("Alert added successfully"),
          Err(e) => eprintln!("{}", e),
      };
@@ -67,7 +70,10 @@ Here are examples of how to use the library:
  ### Fetch hashes by user ID
  ```rust
      // Fetching hashes by user ID
-     match supabase.fetch_hashes_by_user_id(&alert.user_id, config.clone()).await {
+     match supabase.fetch_hashes_by_user_id(
+        &alert.user_id,
+        config.clone()
+        ).await {
          Ok(hashes) => println!("Fetched hashes: {:?}", hashes),
          Err(e) => eprintln!("{}", e),
      };
@@ -75,7 +81,10 @@ Here are examples of how to use the library:
  ### Fetch alert details
  ```rust
      // Fetching details by hash
-     match supabase.fetch_details_by_hash(&alert.hash.hash, &config).await {
+     match supabase.fetch_details_by_hash(
+        &alert.hash.hash,
+        &config
+        ).await {
          Ok(details) => println!("Fetched details: {:?}", details),
          Err(e) => eprintln!("{}", e),
      }; 
