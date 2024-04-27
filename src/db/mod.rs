@@ -10,6 +10,7 @@ pub struct Supabase {
     pub url: String,
 }
 
+/// ## Table configuration for the trade_alerts table
 #[derive(Deserialize, Clone,)]
 pub struct TableConfig {
     pub tablename: String,

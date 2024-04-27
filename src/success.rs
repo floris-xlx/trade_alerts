@@ -1,22 +1,23 @@
-//! ## Success handling and logging
+//! Module for handling and logging success outcomes from different APIs.
 
 use std::fmt;
 
-/// An enumeration representing possible success outcomes when interacting with Supabase services.
+/// Enum for success outcomes from Supabase services.
 #[derive(Debug)]
 pub enum SupabaseSuccess {
-    /// Represents a successful authentication process.
+    /// Successful authentication.
     AuthenticationSuccess,
-    /// Represents a successful data insertion operation.
+    /// Successful data insertion.
     InsertionSuccess,
-    /// Represents a successful data update operation.
+    /// Successful data update.
     UpdateSuccess,
-    /// Represents a successful data deletion operation.
+    /// Successful data deletion.
     DeletionSuccess,
-    /// Represents a successful data fetching operation.
+    /// Successful data fetch.
     FetchSuccess,
 }
 
+/// Display implementation for `SupabaseSuccess`.
 impl fmt::Display for SupabaseSuccess {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -29,21 +30,27 @@ impl fmt::Display for SupabaseSuccess {
     }
 }
 
-/// An enumeration representing possible success outcomes when interacting with the Xylex API.
+/// Enum for success outcomes from the Xylex API.
 #[derive(Debug)]
 pub enum XylexApiSuccess {
+    /// Successful network operation.
     NetworkSuccess,
+    /// Valid symbol check.
     ValidSymbol,
+    /// Successful operation completion.
     OperationSuccessful,
+    /// Successful environment-based authentication.
+    EnvAuthenticationSuccess
 }
 
+/// Display implementation for `XylexApiSuccess`.
 impl fmt::Display for XylexApiSuccess {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             XylexApiSuccess::NetworkSuccess => write!(f, "Network operation successful."),
             XylexApiSuccess::ValidSymbol => write!(f, "Symbol is valid."),
             XylexApiSuccess::OperationSuccessful => write!(f, "Operation completed successfully."),
+            XylexApiSuccess::EnvAuthenticationSuccess => write!(f, "Environment-based authentication succeeded."),
         }
     }
 }
-

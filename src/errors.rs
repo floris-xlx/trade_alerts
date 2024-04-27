@@ -1,23 +1,23 @@
-//! ## Error handling and logging
+//! Error handling and logging module for various service interactions.
 
 use std::fmt;
 
-/// An enumeration representing possible errors that can occur when interacting with Supabase services.
+/// Errors related to Supabase service operations.
 #[derive(Debug)]
 pub enum SupabaseError {
-    /// Represents an error that occurs during the authentication process.
+    /// Error during authentication.
     AuthenticationError(String),
-    /// Represents an error that occurs during data insertion operations.
+    /// Error during data insertion.
     InsertionError(String),
-    /// Represents an error that occurs during data update operations.
+    /// Error during data update.
     UpdateError(String),
-    /// Represents an error that occurs during data deletion operations.
+    /// Error during data deletion.
     DeletionError(String),
-    /// Represents an error that occurs during data fetching operations.
+    /// Error during data fetching.
     FetchError(String),
 }
 
-/// Implements the `Display` trait for `SupabaseError` to allow for user-friendly error messages.
+/// Display implementation for `SupabaseError`.
 impl fmt::Display for SupabaseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -30,21 +30,21 @@ impl fmt::Display for SupabaseError {
     }
 }
 
-/// Implements the standard `Error` trait for `SupabaseError`.
+/// Error trait implementation for `SupabaseError`.
 impl std::error::Error for SupabaseError {}
 
-
-/// An enumeration representing possible errors that can occur when interacting with table configurations.
+/// Errors related to table configuration operations.
 #[derive(Debug)]
 pub enum TableConfigError {
-    /// Represents an error that occurs when the configuration is invalid.
+    /// Invalid configuration.
     InvalidConfiguration(String),
-    /// Represents an error that occurs when the configuration file cannot be found.
+    /// Configuration file not found.
     FileNotFound(String),
-    /// Represents an error that occurs when the configuration file cannot be parsed.
+    /// Error parsing configuration file.
     ParseError(String),
 }
 
+/// Display implementation for `TableConfigError`.
 impl fmt::Display for TableConfigError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -55,24 +55,33 @@ impl fmt::Display for TableConfigError {
     }
 }
 
+/// Error trait implementation for `TableConfigError`.
 impl std::error::Error for TableConfigError {}
 
-
+/// Errors related to Xylex API interactions.
 #[derive(Debug)]
 pub enum XylexApiError {
+    /// Network connectivity issues.
     NetworkError(String),
+    /// Invalid symbol provided.
     InvalidSymbol(String),
+    /// Unexpected error occurred.
     UnexpectedError(String),
+    /// Authentication error due to environment settings.
+    EnvAuthenticationError(String),
 }
 
+/// Display implementation for `XylexApiError`.
 impl fmt::Display for XylexApiError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             XylexApiError::NetworkError(msg) => write!(f, "Network error: {}", msg),
             XylexApiError::InvalidSymbol(symbol) => write!(f, "Invalid symbol provided: {}", symbol),
             XylexApiError::UnexpectedError(info) => write!(f, "An unexpected error occurred: {}", info),
+            XylexApiError::EnvAuthenticationError(msg) => write!(f, "Environment-based authentication error: {}", msg),
         }
     }
 }
 
+/// Error trait implementation for `XylexApiError`.
 impl std::error::Error for XylexApiError {}

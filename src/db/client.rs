@@ -6,13 +6,13 @@
 //! 
 use std::error::Error;
 use std::env;
-use std::collections::{HashSet,HashMap};
+use std::collections::{HashSet, HashMap};
 
 use dotenv::dotenv;
 use serde_json::{Value, json};
 
-use crate::db::{Supabase,TableConfig};
-use crate::errors::{SupabaseError,TableConfigError};
+use crate::db::{Supabase, TableConfig};
+use crate::errors::{SupabaseError, TableConfigError};
 use crate::success::SupabaseSuccess;
 use crate::Alert;
 
@@ -24,7 +24,11 @@ impl Supabase {
     ///
     /// # Returns
     /// A `Result` indicating success or error in insertion.
-    pub async fn add_alert(&self, alert: Alert, config: TableConfig) -> Result<SupabaseSuccess, Box<dyn Error + Send + Sync>> {
+    pub async fn add_alert(
+        &self, 
+        alert: Alert, 
+        config: TableConfig
+    ) -> Result<SupabaseSuccess, Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
     
         let response: Result<String, String> = supabase
@@ -95,8 +99,7 @@ impl Supabase {
         &self,
         user_id: &str,
         config: TableConfig
-        ) -> Result<(Vec<String>, SupabaseSuccess), Box<dyn Error + Send + Sync>> {
-
+    ) -> Result<(Vec<String>, SupabaseSuccess), Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
     
         let response: Result<Vec<Value>, String> = supabase
@@ -116,14 +119,23 @@ impl Supabase {
         }
     }
 
+
+    /// Fetches all hashes from the Supabase database.
+    ///
+    /// # Parameters
+    /// - `config`: A `TableConfig` struct containing the table and column names configuration.
+    ///
+    /// # Returns
+    /// A `Result` containing a vector of hashes or an error.
+    ///
+    /// # Errors
+    /// Returns an error if the query execution fails.
     pub async fn fetch_all_hashes(
         &self,
-        config: &TableConfig)
-         -> Result<Vec<String>, Box<dyn Error + Send + Sync>> {
-    
-        
-            let response = self.fetch_all_data(config).await;
-            match response {
+        config: &TableConfig
+    ) -> Result<Vec<String>, Box<dyn Error + Send + Sync>> {
+        let response = self.fetch_all_data(config).await;
+        match response {
             Ok(values) => {
                 let hashes: Vec<String> = values.iter()
                     .filter_map(|value| value.get(&config.hash_column_name).and_then(|v| v.as_str().map(String::from)))
@@ -219,51 +231,73 @@ impl Supabase {
     }
 
 
+    /// Fetches all data from the specified table in the Supabase database.
+    ///
+    /// This function retrieves all rows from the table specified in the `TableConfig`.
+    /// Each row is converted into a `HashMap` where the keys are column names and the values are the corresponding data.
+    ///
+    /// # Parameters
+    /// - `config`: A reference to a `TableConfig` struct containing the table configuration.
+    ///
+    /// # Returns
+    /// A `Result` containing a vector of `HashMap<String, Value>` if successful, or an error if the fetch fails.
+    ///
+    /// # Errors
+    /// Returns an error if the query execution fails or if the data type of any value is not a JSON object.
     pub async fn fetch_all_data(
         &self,
         config: &TableConfig
-    ) 
-    -> Result<Vec<HashMap<String, Value>>, Box<dyn Error + Send + Sync>> {
-    let supabase = Supabase::authenticate(&self).await;
+    ) -> Result<Vec<HashMap<String, Value>>, Box<dyn Error + Send + Sync>> {
+        let supabase = Supabase::authenticate(&self).await;
 
-    let response: Result<Vec<Value>, String> = supabase
-        .select(&config.tablename)
-        .execute()
-        .await;
+        let response: Result<Vec<Value>, String> = supabase
+            .select(&config.tablename)
+            .execute()
+            .await;
 
-    // Convert Vec<Value> to Vec<HashMap<String, Value>>
-    match response {
-        Ok(values) => {
-            let mut hash_maps = Vec::new();
-            for value in values {
-                if let Value::Object(map) = value {
-                    let hash_map: HashMap<String, Value> = map.into_iter().collect();
-                    hash_maps.push(hash_map);
-                } else {
-                    return Err(Box::new(SupabaseError::FetchError("Unexpected value type".to_string())));
+        // Convert Vec<Value> to Vec<HashMap<String, Value>>
+        match response {
+            Ok(values) => {
+                let mut hash_maps = Vec::new();
+                for value in values {
+                    if let Value::Object(map) = value {
+                        let hash_map: HashMap<String, Value> = map.into_iter().collect();
+                        hash_maps.push(hash_map);
+                    } else {
+                        return Err(Box::new(SupabaseError::FetchError("Unexpected value type".to_string())));
+                    }
                 }
-            }
-            Ok(hash_maps)
-        },
-        Err(e) => Err(Box::new(SupabaseError::FetchError(e)))
-    }
+                Ok(hash_maps)
+            },
+            Err(e) => Err(Box::new(SupabaseError::FetchError(e)))
+        }
     }
 
-
-    
+    /// Fetches the database ID associated with a specific hash from the specified table.
+    ///
+    /// This function searches for a row in the table that matches the given hash and retrieves the ID of that row.
+    ///
+    /// # Parameters
+    /// - `hash`: The hash value to search for.
+    /// - `config`: A `TableConfig` struct containing the table and column names configuration.
+    ///
+    /// # Returns
+    /// A `Result` containing the ID as `i64` if successful, or an error if the fetch fails.
+    ///
+    /// # Errors
+    /// Returns an error if the query execution fails, if no results are found, if the ID field is missing, or if the ID is not an integer.
     pub async fn fetch_id_with_hash(
         &self, hash: &str,
         config: TableConfig
     ) -> Result<i64, Box<dyn Error + Send + Sync>> {
-    
         let supabase = Supabase::authenticate(&self).await;
-    
+
         let response: Result<Vec<Value>, String> = supabase
             .select(&config.tablename)
             .eq(&config.hash_column_name, hash)
             .execute()
             .await;
-    
+
         match response {
             Ok(values) => {
                 if let Some(first) = values.first() {
@@ -285,6 +319,7 @@ impl Supabase {
         }
     }
 }
+
 
 
 impl TableConfig {

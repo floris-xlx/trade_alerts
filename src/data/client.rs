@@ -2,12 +2,9 @@ use std::collections::HashSet;
 use crate::data::XylexApi;
 use crate::db::{Supabase,TableConfig};
 
-#[allow(unused_imports)]
-use crate::errors::{SupabaseError, XylexApiError};
-#[allow(unused_imports)]
-use crate::success::{SupabaseSuccess, XylexApiSuccess};
+use crate::errors::XylexApiError;
 
-/// Implementation of `XylexApi` providing functionalities to interact with financial data APIs.
+/// Implementation of `XylexApi` providing functionalities to interact with financial data APIs and calling relevant database operations.
 impl XylexApi {
     /// Fetches real-time prices for a set of symbols.
     ///
@@ -21,7 +18,7 @@ impl XylexApi {
     ///
     /// # Examples
     /// ```
-    /// let api = XylexApi::new();
+    /// let api = XylexApi::new("your_api_key".to_string(), "your_api_endpoint".to_string());
     /// let symbols = HashSet::from(["AAPL", "GOOGL"]);
     /// let prices = api.fetch_prices_for_symbols(symbols).await;
     /// ```
@@ -56,12 +53,28 @@ impl XylexApi {
     ///
     /// # Examples
     /// ```
-    /// let api = XylexApi::new();
-    /// let supabase = Supabase::new();
-    /// let config = TableConfig::new();
-    /// let triggered_alerts = api.check_and_fetch_triggered_alerts(&supabase, &config).await;
+    /// let api = XylexApi::new(
+    ///     "your_api_key".to_string(),
+    ///     "your_api_endpoint".to_string()
+    /// );
+    /// 
+    /// let supabase = Supabase::new(
+    ///     "your_supabase_key".to_string(),
+    ///     "your_supabase_url".to_string()
+    /// );
+    /// let config = TableConfig::new(
+    ///     "your_table_name".to_string(),
+    ///     "your_symbol_column_name".to_string(),
+    ///     "your_price_level_column_name".to_string(),
+    ///     "your_hash_column_name".to_string()
+    /// );
+    /// 
+    /// let triggered_alerts = api.check_and_fetch_triggered_alert_hashes(
+    ///     &supabase,
+    ///     &config
+    /// ).await;
     /// ```
-    pub async fn check_and_fetch_triggered_alerts(
+    pub async fn check_and_fetch_triggered_alert_hashes(
         &self,
         supabase: &Supabase,
         config: &TableConfig
@@ -97,6 +110,34 @@ impl XylexApi {
         Ok(triggered_hashes)
     }
 
+    /// Deletes alerts identified by their hashes.
+    ///
+    /// This function authenticates with the Supabase client, fetches the ID associated with each hash,
+    /// and attempts to delete the corresponding alert from the database.
+    ///
+    /// # Arguments
+    /// * `supabase` - A reference to a `Supabase` client used for database operations.
+    /// * `config` - A reference to a `TableConfig` which contains configuration for the database table.
+    /// * `hashes` - A vector of strings representing the hashes of the alerts to be deleted.
+    ///
+    /// # Returns
+    /// A `Result` which is either:
+    /// - `Ok(())` - Indicates successful deletion of all specified alerts.
+    /// - `Err(XylexApiError)` - An error occurred during the operation, such as network issues or failure to find an alert by its hash.
+    ///
+    /// # Examples
+    /// ```
+    /// let api = XylexApi::new("your_api_key".to_string(), "your_api_endpoint".to_string());
+    /// let supabase = Supabase::new("your_supabase_key".to_string(), "your_supabase_url".to_string());
+    /// let config = TableConfig::new(
+    ///     "your_table_name".to_string(),
+    ///     "your_symbol_column_name".to_string(),
+    ///     "your_price_level_column_name".to_string(),
+    ///     "your_hash_column_name".to_string()
+    /// );
+    /// let hashes = vec!["hash1".to_string(), "hash2".to_string()];
+    /// let result = api.delete_triggered_alerts_by_hashes(&supabase, &config, hashes).await;
+    /// ```
     pub async fn delete_triggered_alerts_by_hashes(
         &self,
         supabase: &Supabase,
@@ -121,4 +162,4 @@ impl XylexApi {
         }
         Ok(())
     }
-}
+    }

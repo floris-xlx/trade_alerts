@@ -1,13 +1,11 @@
 //! ## Request constructor for data feeds
-//!
-//! ### Table of Contents
-//!
 //! ### Supported providers:
 //! - `TwelveData`
 //!
 
-use std::error::Error;
 use crate::data::XylexApi;
+use crate::errors::XylexApiError;
+#[allow(unused_imports)]
 
 impl XylexApi {
     /// Requests the real-time price of a specified symbol using the Xylex API.
@@ -21,7 +19,7 @@ impl XylexApi {
     /// # Returns
     /// A `Result` which is:
     /// - `Ok(f64)` containing the price if the request and parsing are successful.
-    /// - `Err(Box<dyn Error + Send + Sync>)` if there is an error during the request or parsing.
+    /// - `Err(XylexApiError)` if there is an error during the request or parsing.
     ///
     /// # Errors
     /// This method can return an error in several cases, including:
@@ -30,23 +28,31 @@ impl XylexApi {
     /// - Failure to parse the `price` field as a floating-point number.
     pub async fn request_real_time_price(
         &self,
-        symbol: &str) 
-        -> Result<f64, Box<dyn Error + Send + Sync>> {
+        symbol: &str
+    ) -> Result<f64, XylexApiError> {
+        let url = format!(
+            "{}symbol={}&api_key={}", 
+            self.endpoint, 
+            symbol, 
+            self.key
+        );
 
-        // Replace placeholders in the URL
-        let url = format!("{}symbol={}&api_key={}", self.endpoint, symbol, self.key);
-
-        // Make the HTTP GET request
         let response = reqwest::Client::new()
             .get(&url)
             .send()
-            .await?
+            .await
+            .map_err(|_| XylexApiError::NetworkError("Failed to send request".to_string()))?
             .json::<serde_json::Value>()
-            .await?;
-        
-        // Extract the price from the JSON response
-        let price_str = response["price"].as_str().ok_or("Price field missing or not a string")?;
-        let price: f64 = price_str.parse().map_err(|_| "Failed to parse price as float")?;
+            .await
+            .map_err(|_| XylexApiError::UnexpectedError("Failed to parse JSON".to_string()))?;
+
+        let price_str = response["price"]
+            .as_str()
+            .ok_or(XylexApiError::InvalidSymbol("Price field missing or not a string".to_string()))?;
+
+        let price: f64 = price_str
+            .parse()
+            .map_err(|_| XylexApiError::UnexpectedError("Failed to parse price as float".to_string()))?;
 
         Ok(price)
     }

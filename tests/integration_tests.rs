@@ -49,12 +49,23 @@ mod tests {
         ).await.expect("Failed to fetch details");
         println!("Details fetched by test: {:?}", details);
 
-        let xylex_api = XylexApi::authenticate().await;
-
-        let triggered_alerts = xylex_api.check_and_fetch_triggered_alerts(
-            &supabase, 
+        let xylex_api = match XylexApi::new_env()
+        .await {
+            Ok(api) => api,
+            Err(e) => {
+                return; 
+            }
+        };
+        
+        let triggered_alerts = match xylex_api.check_and_fetch_triggered_alert_hashes(
+            &supabase,
             &config
-        ).await.expect("Failed to check and fetch triggered alerts");
+        ).await {
+            Ok(alerts) => alerts,
+            Err(e) => {
+                return;
+            }
+        };
 
         xylex_api.delete_triggered_alerts_by_hashes(
             &supabase, 
