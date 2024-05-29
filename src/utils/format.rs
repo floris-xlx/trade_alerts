@@ -1,7 +1,6 @@
 //! This module contains utility functions for formatting data.
 //! 
 //!
-use chrono::prelude::*;
 use sha2::{Digest, Sha256};
 
 use crate::HashComponents;
@@ -33,12 +32,13 @@ impl HashComponents {
         }
     }
 
-    /// Generates a hash using the current Unix time and the attributes of the struct.
-    /// This hash is intended to uniquely identify a set of data with a timestamp component.
+    /// Generates a hash using the attributes of the struct and a prefix.
+    ///
+    /// # Arguments
+    /// * `prefix` - A string slice that will be prepended to the generated hash.
     ///
     /// # Returns
-    ///
-    /// Returns a string formatted as `xlx-c-{hash}` where `{hash}` is the hexadecimal representation of the hash.
+    /// Returns a string that consists of the provided prefix followed by the hexadecimal representation of the hash.
     ///
     /// # Examples
     ///
@@ -49,27 +49,43 @@ impl HashComponents {
     /// #[tokio::main]
     /// async fn main() {
     ///     let components = HashComponents::new(100.0, "user123".to_string(), "AAPL".to_string());
-    ///     let hash = components.generate_hash().await;
+    ///     let hash = components.generate_hash("prefix_").await;
     ///     println!("Generated Hash: {}", hash);
     /// }
     /// ```
     pub async fn generate_hash(
-        &self
+        &self,
+        prefix: &str
     ) -> String {
         let mut hasher = Sha256::new();
-
-        // Get the current Unix time from the system clock.
-        let now: DateTime<Utc> = Utc::now();
-        let unixtime: i64 = now.timestamp(); // Seconds since the Unix epoch
-
-        // Update the hasher with the current Unix time and struct attributes.
-        hasher.update(unixtime.to_string().as_bytes());
+    
         hasher.update(self.user_id.as_bytes());
         hasher.update(self.symbol.as_bytes());
         hasher.update(self.price_level.to_string().as_bytes());
-
+    
         // Finalize the hash computation and format it.
-        let result: sha2::digest::generic_array::GenericArray<u8, sha2::digest::typenum::UInt<sha2::digest::typenum::UInt<sha2::digest::typenum::UInt<sha2::digest::typenum::UInt<sha2::digest::typenum::UInt<sha2::digest::typenum::UInt<sha2::digest::typenum::UTerm, sha2::digest::consts::B1>, sha2::digest::consts::B0>, sha2::digest::consts::B0>, sha2::digest::consts::B0>, sha2::digest::consts::B0>, sha2::digest::consts::B0>> = hasher.finalize();
-        format!("{:x}", result)
+        let result: sha2::digest::generic_array::GenericArray<
+            u8, 
+            sha2::digest::typenum::UInt<
+                sha2::digest::typenum::UInt<
+                    sha2::digest::typenum::UInt<
+                        sha2::digest::typenum::UInt<
+                            sha2::digest::typenum::UInt<
+                                sha2::digest::typenum::UInt<
+                                    sha2::digest::typenum::UTerm, 
+                                    sha2::digest::consts::B1
+                                >, 
+                                sha2::digest::consts::B0
+                            >, 
+                            sha2::digest::consts::B0
+                        >, 
+                        sha2::digest::consts::B0
+                    >, 
+                    sha2::digest::consts::B0
+                >, 
+                sha2::digest::consts::B0
+            >
+        > = hasher.finalize();
+        format!("{}{:x}", prefix, result)
     }
 }
