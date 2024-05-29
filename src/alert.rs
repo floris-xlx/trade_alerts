@@ -59,7 +59,6 @@ impl Alert {
         let response = supabase.add_alert(self.clone(), table_config.clone()).await;
         match response {
             Ok(_) => {
-                println!("Alert triggered for symbol: {}", self.symbol);
                 Ok(())
             },
             Err(e) => Err(e)

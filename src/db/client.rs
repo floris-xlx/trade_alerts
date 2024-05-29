@@ -49,13 +49,13 @@ impl Supabase {
         }
     }
 
-    /// Deletes an alert from the Supabase database using the provided `Alert` struct.
+    /// Deletes an alert from the Supabase database using the provided hash.
     ///
     /// This function first fetches the ID associated with the alert's hash from the database,
     /// then attempts to delete the alert using this ID.
     ///
     /// # Parameters
-    /// - `alert`: An instance of the `Alert` struct containing the hash of the alert to be deleted.
+    /// - `hash`: The hash of the alert to be deleted.
     /// - `config`: A `TableConfig` struct containing the table and column names configuration.
     ///
     /// # Returns
@@ -63,14 +63,14 @@ impl Supabase {
     ///
     /// # Errors
     /// Returns an error if fetching the ID or deleting the alert fails.
-    pub async fn delete_alert(
+    pub async fn delete_alert_by_hash(
         &self,
-        alert: Alert,
+        hash: &str,
         config: TableConfig
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
     
-        let id_result = self.fetch_id_with_hash(&alert.hash.hash, config.clone()).await;
+        let id_result = self.fetch_id_with_hash(hash, config.clone()).await;
         match id_result {
             Ok(id) => {
                 let delete_result = supabase.delete(&config.tablename, &id.to_string()).await;
@@ -82,7 +82,6 @@ impl Supabase {
             Err(e) => Err(e)
         }
     }
-
 
     /// Fetches all hashes for a given user ID from the Supabase database.
     ///
