@@ -286,7 +286,8 @@ impl Supabase {
     /// # Errors
     /// Returns an error if the query execution fails, if no results are found, if the ID field is missing, or if the ID is not an integer.
     pub async fn fetch_id_with_hash(
-        &self, hash: &str,
+        &self,
+        hash: &str,
         config: TableConfig
     ) -> Result<i64, Box<dyn Error + Send + Sync>> {
         let supabase = Supabase::authenticate(&self).await;
