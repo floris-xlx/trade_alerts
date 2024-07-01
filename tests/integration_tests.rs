@@ -50,6 +50,7 @@ async fn test_trade_alerts_integration() {
     .await {
         Ok(api) => api,
         Err(e) => {
+            println!("Failed to create Xylex API client: {:?}", e);
             return; 
         }
     };
@@ -60,6 +61,7 @@ async fn test_trade_alerts_integration() {
     ).await {
         Ok(alerts) => alerts,
         Err(e) => {
+            println!("Failed to check and fetch triggered alert hashes: {:?}", e);
             return;
         }
     };
