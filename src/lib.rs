@@ -228,34 +228,15 @@ pub mod errors;
 pub mod success;
 pub mod utils;
 
-/// Represents the components used to generate a hash for an alert.
-///
-/// It does not include time directly; instead, it fetches the current time dynamically when generating the hash,
-/// ensuring that each hash is unique to the specific moment it's created.
-pub struct HashComponents {
-    /// A floating point number representing the price level at which the alert should trigger.
-    price_level: f64,
-    /// A unique identifier for the user who created the alert.
-    user_id: String,
-    /// The symbol associated with the price level, typically a stock ticker or similar financial instrument identifier.
-    symbol: String,
-}
 
-/// A structure representing a hash value associated with an alert.
-///
-/// This struct encapsulates a hash string that uniquely identifies an alert.
-#[derive(Clone)]
-pub struct Hash {
-    /// The hash string that uniquely identifies the alert. It has a random component to ensure uniqueness.
-    pub hash: String,
-}
+
 
 /// Represents an alert for a specific user intrested in a 
 /// particular symbol at a certain price level with a unique hash.
 #[derive(Clone)]
 pub struct Alert {
     /// The unique hash associated with this alert, encapsulating all its identifying components.
-    pub hash: Hash,
+    pub hash: String,
     /// The price level at which the alert should trigger.
     pub price_level: f64,
     /// The unique identifier of the user who set up the alert.

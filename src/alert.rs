@@ -5,7 +5,7 @@
 //! and triggered when certain conditions are met.
 
 use std::error::Error;
-use crate::{Alert, Hash};
+use crate::Alert;
 use crate::db::{Supabase, TableConfig};
 
 impl Alert {
@@ -23,7 +23,7 @@ impl Alert {
     /// # Returns
     /// Returns a new instance of `Alert`.
     pub fn new(
-        hash: Hash,
+        hash: String,
         price_level: f64,
         symbol: String,
         user_id: String
@@ -53,7 +53,8 @@ impl Alert {
     /// # Errors
     /// Returns an error if the database operation fails.
     pub async fn add_alert(
-        &self, supabase: &Supabase,
+        &self,
+        supabase: &Supabase,
         table_config: &TableConfig
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
         let response = supabase.add_alert(self.clone(), table_config.clone()).await;

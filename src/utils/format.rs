@@ -3,68 +3,40 @@
 //!
 use md5::{Digest, Md5};
 
-use crate::HashComponents;
+/// Generates a hash using the attributes of the struct and a prefix.
+///
+/// # Arguments
+/// * `prefix` - A string slice that will be prepended to the generated hash.
+///
+/// # Returns
+/// Returns a string that consists of the provided prefix followed by the hexadecimal representation of the hash.
+///
+/// # Examples
+///
+/// ```
+/// use trade_alerts::HashComponents;
+/// use tokio; // assuming the use of Tokio for async runtime
+///
+/// #[tokio::main]
+/// async fn main() {
+///     let components = HashComponents::new(100.0, "user123".to_string(), "AAPL".to_string());
+///     let hash = components.generate_hash("prefix_").await;
+///     println!("Generated Hash: {}", hash);
+/// }
+/// ```
+pub async fn generate_hash(
+    user_id: &str,
+    symbol: &str,
+    price_level: f64,
+    prefix: &str
+) -> String {
+    let mut hasher = Md5::new();
 
-impl HashComponents {
-    /// Constructs a new `HashComponents` instance.
-    ///
-    /// # Arguments
-    ///
-    /// * `price_level` - A floating point number indicating the price level.
-    /// * `user_id` - A string slice that holds the user ID.
-    /// * `symbol` - A string slice that holds the symbol.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use trade_alerts::HashComponents;
-    /// let components = HashComponents::new(100.0, "user123".to_string(), "AAPL".to_string());
-    /// ```
-    pub fn new(
-        price_level: f64,
-        user_id: String,
-        symbol: String
-    ) -> Self {
-        Self {
-            price_level,
-            user_id,
-            symbol,
-        }
-    }
+    hasher.update(user_id.as_bytes());
+    hasher.update(symbol.as_bytes());
+    hasher.update(price_level.to_string().as_bytes());
 
-    /// Generates a hash using the attributes of the struct and a prefix.
-    ///
-    /// # Arguments
-    /// * `prefix` - A string slice that will be prepended to the generated hash.
-    ///
-    /// # Returns
-    /// Returns a string that consists of the provided prefix followed by the hexadecimal representation of the hash.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use trade_alerts::HashComponents;
-    /// use tokio; // assuming the use of Tokio for async runtime
-    ///
-    /// #[tokio::main]
-    /// async fn main() {
-    ///     let components = HashComponents::new(100.0, "user123".to_string(), "AAPL".to_string());
-    ///     let hash = components.generate_hash("prefix_").await;
-    ///     println!("Generated Hash: {}", hash);
-    /// }
-    /// ```
-    pub async fn generate_hash(
-        &self,
-        prefix: &str
-    ) -> String {
-        let mut hasher = Md5::new();
-    
-        hasher.update(self.user_id.as_bytes());
-        hasher.update(self.symbol.as_bytes());
-        hasher.update(self.price_level.to_string().as_bytes());
-    
-        // Finalize the hash computation and format it.
-        let result = hasher.finalize();
-        format!("{}{:x}", prefix, result)
-    }
+    // Finalize the hash computation and format it.
+    let result = hasher.finalize();
+    format!("{}{:x}", prefix, result)
 }

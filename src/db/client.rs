@@ -37,7 +37,7 @@ impl Supabase {
             .insert_if_unique(
                 &config.tablename,
                 json!({
-                    config.hash_column_name: alert.hash.hash,
+                    config.hash_column_name: alert.hash,
                     config.price_level_column_name: alert.price_level,
                     config.user_id_column_name: alert.user_id,
                     config.symbol_column_name: alert.symbol,
