@@ -46,7 +46,7 @@ async fn test_trade_alerts_integration() {
     ).await.expect("Failed to fetch details");
     println!("Details fetched by test: {:?}", details);
 
-    let xylex_api = match XylexApi::new_env()
+    let xylex_api: XylexApi = match XylexApi::new_env()
     .await {
         Ok(api) => api,
         Err(e) => {
@@ -54,7 +54,7 @@ async fn test_trade_alerts_integration() {
         }
     };
     
-    let triggered_alerts = match xylex_api.check_and_fetch_triggered_alert_hashes(
+    let triggered_alerts: Vec<String> = match xylex_api.check_and_fetch_triggered_alert_hashes(
         &supabase,
         &config
     ).await {
