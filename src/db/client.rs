@@ -11,6 +11,8 @@ use std::collections::{HashSet, HashMap};
 use dotenv::dotenv;
 use serde_json::{Value, json};
 
+use supabase_rs::SupabaseClient;
+
 use crate::db::{Supabase, TableConfig};
 use crate::errors::{SupabaseError, TableConfigError};
 use crate::success::SupabaseSuccess;
@@ -68,9 +70,14 @@ impl Supabase {
         hash: &str,
         config: TableConfig
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let supabase = Supabase::authenticate(&self).await;
+
+        let supabase: SupabaseClient = Supabase::authenticate(&self).await;
     
-        let id_result = self.fetch_id_with_hash(hash, config.clone()).await;
+        let id_result = self.fetch_id_with_hash(
+            hash,
+            config.clone()
+        ).await;
+
         match id_result {
             Ok(id) => {
                 let delete_result = supabase.delete(&config.tablename, &id.to_string()).await;
@@ -99,7 +106,8 @@ impl Supabase {
         user_id: &str,
         config: TableConfig
     ) -> Result<(Vec<String>, SupabaseSuccess), Box<dyn Error + Send + Sync>> {
-        let supabase = Supabase::authenticate(&self).await;
+        
+        let supabase: SupabaseClient = Supabase::authenticate(&self).await;
     
         let response: Result<Vec<Value>, String> = supabase
             .select(&config.tablename)
@@ -109,8 +117,13 @@ impl Supabase {
     
         match response {
             Ok(values) => {
-                let hashes: Vec<String> = values.iter()
-                    .filter_map(|value| value.get(&config.hash_column_name).and_then(|v| v.as_str().map(String::from)))
+                let hashes: Vec<String> = values
+                    .iter()
+                    .filter_map(|value| {
+                        value
+                            .get(&config.hash_column_name)
+                            .and_then(|v| v.as_str().map(String::from))
+                    })
                     .collect();
                 Ok((hashes, SupabaseSuccess::FetchSuccess))
             },
@@ -134,17 +147,22 @@ impl Supabase {
         config: &TableConfig
     ) -> Result<Vec<String>, Box<dyn Error + Send + Sync>> {
         let response = self.fetch_all_data(config).await;
+        
         match response {
             Ok(values) => {
-                let hashes: Vec<String> = values.iter()
-                    .filter_map(|value| value.get(&config.hash_column_name).and_then(|v| v.as_str().map(String::from)))
+                let hashes: Vec<String> = values
+                    .iter()
+                    .filter_map(|value| {
+                        value
+                            .get(&config.hash_column_name)
+                            .and_then(|v| v.as_str().map(String::from))
+                    })
                     .collect();
                 Ok(hashes)
             },
-            Err(e) => Err(e) 
+            Err(e) => Err(e)
         }
     }
-
     /// Fetches the user ID, price level, and symbol for a given hash from the Supabase database.
     ///
     /// # Parameters
@@ -161,7 +179,7 @@ impl Supabase {
         hash: &str,
         config: &TableConfig
     ) -> Result<(String, String, String, SupabaseSuccess), Box<dyn Error + Send + Sync>> {
-        let supabase = Supabase::authenticate(&self).await;
+        let supabase: SupabaseClient = Supabase::authenticate(&self).await;
     
         let response: Result<Vec<Value>, String> = supabase
             .select(&config.tablename)
@@ -210,7 +228,7 @@ impl Supabase {
         &self,
         config: &TableConfig
     ) -> Result<(HashSet<String>, SupabaseSuccess), Box<dyn Error + Send + Sync>> {
-        let supabase = Supabase::authenticate(&self).await;
+        let supabase: SupabaseClient = Supabase::authenticate(&self).await;
     
         let response: Result<Vec<Value>, String> = supabase
             .select(&config.tablename)

@@ -1,7 +1,7 @@
 //! This module contains utility functions for formatting data.
 //! 
 //!
-use sha2::{Digest, Sha256};
+use md5::{Digest, Md5};
 
 use crate::HashComponents;
 
@@ -57,35 +57,14 @@ impl HashComponents {
         &self,
         prefix: &str
     ) -> String {
-        let mut hasher = Sha256::new();
+        let mut hasher = Md5::new();
     
         hasher.update(self.user_id.as_bytes());
         hasher.update(self.symbol.as_bytes());
         hasher.update(self.price_level.to_string().as_bytes());
     
         // Finalize the hash computation and format it.
-        let result: sha2::digest::generic_array::GenericArray<
-            u8, 
-            sha2::digest::typenum::UInt<
-                sha2::digest::typenum::UInt<
-                    sha2::digest::typenum::UInt<
-                        sha2::digest::typenum::UInt<
-                            sha2::digest::typenum::UInt<
-                                sha2::digest::typenum::UInt<
-                                    sha2::digest::typenum::UTerm, 
-                                    sha2::digest::consts::B1
-                                >, 
-                                sha2::digest::consts::B0
-                            >, 
-                            sha2::digest::consts::B0
-                        >, 
-                        sha2::digest::consts::B0
-                    >, 
-                    sha2::digest::consts::B0
-                >, 
-                sha2::digest::consts::B0
-            >
-        > = hasher.finalize();
+        let result = hasher.finalize();
         format!("{}{:x}", prefix, result)
     }
 }

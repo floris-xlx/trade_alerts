@@ -3,6 +3,7 @@
 use crate::Hash;
 use serde_json::Value;
 
+use supabase_rs::SupabaseClient;
 use crate::db::{Supabase,TableConfig};
 
 impl Hash {
@@ -31,7 +32,7 @@ impl Hash {
         supabase: &Supabase,
         table_config: &TableConfig
     ) -> bool {
-        let supabase = Supabase::authenticate(supabase).await;
+        let supabase: SupabaseClient = Supabase::authenticate(supabase).await;
         let hash_table_name: String = table_config.tablename.clone();
         let hash_column_name: String =  table_config.hash_column_name.clone();
 
