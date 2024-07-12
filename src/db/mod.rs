@@ -3,6 +3,7 @@ pub mod auth;
 pub mod client;
 
 /// ## Supabase API authentication
+#[derive(Clone, Debug)]
 pub struct Supabase {
     pub key: String,
     pub url: String,

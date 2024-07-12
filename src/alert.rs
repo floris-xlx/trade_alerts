@@ -36,28 +36,32 @@ impl Alert {
         }
     }
 
-    /// Adds an alert to the database and handles its triggering.
+    /// ### Adds an alert to the database and handles its triggering.
     ///
     /// This asynchronous method takes a reference to a `Supabase` client and a `TableConfig`,
     /// and attempts to add the alert to the database. If successful, it logs that the alert
     /// has been triggered.
     ///
-    /// # Parameters
+    /// ##### Parameters
     /// - `supabase`: A reference to the `Supabase` client used for database operations.
     /// - `table_config`: Configuration for the database table where alerts are stored.
     ///
-    /// # Returns
+    /// ##### Returns
     /// Returns `Ok(())` if the alert was successfully added and triggered, or an `Err(e)`
     /// if an error occurred during the operation.
     ///
-    /// # Errors
+    /// ##### Errors
     /// Returns an error if the database operation fails.
     pub async fn add_alert(
         &self,
         supabase: &Supabase,
         table_config: &TableConfig
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let response = supabase.add_alert(self.clone(), table_config.clone()).await;
+        let response: Result<crate::success::SupabaseSuccess, Box<dyn Error + Sync + Send>> = supabase.add_alert(
+            self.clone(), 
+            table_config.clone()
+        ).await;
+
         match response {
             Ok(_) => {
                 Ok(())

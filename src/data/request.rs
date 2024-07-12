@@ -31,13 +31,13 @@ impl XylexApi {
         symbol: &str
     ) -> Result<f64, XylexApiError> {
         let url = format!(
-            "{}symbol={}&api_key={}", 
+            "{}?symbol={}&api_key={}", 
             self.endpoint, 
             symbol, 
             self.key
         );
 
-        let response = reqwest::Client::new()
+        let response: serde_json::Value = reqwest::Client::new()
             .get(&url)
             .send()
             .await

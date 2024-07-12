@@ -17,6 +17,7 @@ use crate::db::{Supabase, TableConfig};
 use crate::errors::{SupabaseError, TableConfigError};
 use crate::success::SupabaseSuccess;
 use crate::Alert;
+use crate::data::XylexApi;
 
 impl Supabase {
     /// Adds an alert to the Supabase database using the provided `Alert` struct.
@@ -31,7 +32,21 @@ impl Supabase {
         alert: Alert, 
         config: TableConfig
     ) -> Result<SupabaseSuccess, Box<dyn Error + Send + Sync>> {
-        let supabase = Supabase::authenticate(&self).await;
+        let supabase: SupabaseClient = Supabase::authenticate(&self).await;
+
+        let mut direction: String = "sell".to_string();
+        let symbol: String = alert.symbol.clone();
+
+        let realtime_price: XylexApi = XylexApi::new(
+            env::var("XYLEX_KEY").unwrap(),
+            env::var("XYLEX_URL").unwrap()
+        );
+
+        let price: f64 = realtime_price.request_real_time_price(&symbol).await?;
+
+        if price > alert.price_level {
+            direction = "buy".to_string();
+        }
     
         let response: Result<String, String> = supabase
             .insert_if_unique(
@@ -41,6 +56,9 @@ impl Supabase {
                     config.price_level_column_name: alert.price_level,
                     config.user_id_column_name: alert.user_id,
                     config.symbol_column_name: alert.symbol,
+                    "initial_direction": direction,
+                    "hit": false,
+                    "latest_price": price
                 }),
             )
             .await;
@@ -365,6 +383,17 @@ impl TableConfig {
             price_level_column_name,
             user_id_column_name,
             symbol_column_name,
+        }
+    }
+
+
+    pub fn default() -> Self {
+        TableConfig {
+            tablename: "alerts".to_string(),
+            hash_column_name: "hash".to_string(),
+            price_level_column_name: "price_level".to_string(),
+            user_id_column_name: "user_id".to_string(),
+            symbol_column_name: "symbol".to_string(),
         }
     }
 

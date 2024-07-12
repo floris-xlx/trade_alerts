@@ -95,6 +95,7 @@
 //!         "symbol".to_string(),
 //!     );
 //! ```
+//! 
 //! ### Add an alert
 //! We first need to create an alert and then add it to the database.
 //! ```rust
@@ -233,7 +234,7 @@ pub mod utils;
 
 /// Represents an alert for a specific user intrested in a 
 /// particular symbol at a certain price level with a unique hash.
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Alert {
     /// The unique hash associated with this alert, encapsulating all its identifying components.
     pub hash: String,
